@@ -28,6 +28,7 @@ def loginview(request):
 				login(request, user)
 				results['success'] = 'success'
 
+		"""
 		form = LoginForm(request.POST)
 		if form.is_valid():
 			username = form.cleaned_data['username']
@@ -40,6 +41,7 @@ def loginview(request):
 					results['success'] = 'success'
 				else:
 					results['success'] = 'validate'
+		"""
 
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
