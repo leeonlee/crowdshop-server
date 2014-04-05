@@ -40,10 +40,6 @@ INSTALLED_APPS = (
     'crowdshop',
     'rest_framework',
     'south',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.facebook'
 )
 
 MIDDLEWARE_CLASSES = (
