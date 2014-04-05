@@ -9,11 +9,13 @@ from crowdshop.models import Task
 from crowdshop.serializers import UserSerializer, TaskSerializer
 from django.contrib.auth.models import User
 from rest_framework import generics
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 def index(request):
 	return render_to_response("crowdshop/index.html", RequestContext(request))
 
+@csrf_exempt
 def login(request):
 	results = {'success':'invalid'}
 	if request.method == 'POST':
