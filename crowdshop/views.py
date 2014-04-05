@@ -17,6 +17,7 @@ def index(request):
 
 @csrf_exempt
 def login(request):
+	print request
 	results = {'success':'invalid'}
 	if request.method == 'POST':
 		form = LoginForm(request.POST)
@@ -27,6 +28,7 @@ def login(request):
 			if user is not None:
 				if user.is_active:
 					login(request, user)
+					print 'yay'
 					results['success'] = 'success'
 				else:
 					results['success'] = 'validate'
