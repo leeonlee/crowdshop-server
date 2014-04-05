@@ -65,7 +65,7 @@ def venmoWebHook(request):
 	response = request.GET.get('venmo_challenge')
 	# results = {'success':'invalid', 'venmo_challenge': venmo}
 	# response = json.dumps(results)
-	return HttpResponse(response)
+	return HttpResponse(response, content_type='text/plain')
 
 class UserViewSet(viewsets.ModelViewSet):
 	"""
