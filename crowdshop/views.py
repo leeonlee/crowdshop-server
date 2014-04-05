@@ -51,6 +51,7 @@ def createTask(request):
 			results['title'] = task.title
 			results['desc'] = task.desc
 			results['threshold'] = task.threshold
+		response = jason.dumps(results)
 	return HttpResponse(response, content_type='application/json')
 
 class UserViewSet(viewsets.ModelViewSet):
