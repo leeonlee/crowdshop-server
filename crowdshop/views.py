@@ -17,9 +17,8 @@ def index(request):
 
 @csrf_exempt
 def login(request):
-	print request
-	print reqest.method
-	print request.body
+	print request.POST
+	print 'whats up'
 	results = {'success':'invalid'}
 	if request.method == 'POST':
 		print 'THIS IS A POST'
