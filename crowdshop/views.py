@@ -76,18 +76,25 @@ class TaskList(generics.ListAPIView):
 	def get_queryset(self):
 		return Task.objects.filter(claimed_by=None)
 
-class TaskListOthers(generics.ListAPIView):
+class OpenTasks(generics.ListAPIView):
 	serializer_class = TaskSerializer
 	def get_queryset(self):
 		username = self.kwargs['username']
 		owner = User.objects.get(username = username)
 		return Task.objects.filter(claimed_by=None).exclude(owner = owner)
 
-class TaskListUser(generics.ListAPIView):
+class RequestedTasks(generics.ListAPIView):
 	serializer_class = TaskSerializer
 	def get_queryset(self):
 		username = self.kwargs['username']
 		owner = User.objects.get(username = username)
 		return Task.objects.filter(owner = owner)
+
+class ClaimedTasks(generics.ListAPIView):
+	serializer_class = TaskSerializer
+	def get_queryset(self):
+		username = self.kwargs['username']
+		owner = User.objects.get(username = username)
+		return Task.objects.filter(claimed_by = owner)
 
 
