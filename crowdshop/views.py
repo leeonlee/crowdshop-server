@@ -26,21 +26,9 @@ def loginview(request):
 			if user.is_active:
 				login(request, user)
 				results['success'] = 'success'
-
-		"""
-		form = LoginForm(request.POST)
-		if form.is_valid():
-			username = form.cleaned_data['username']
-			password = form.cleaned_data['password']
-			user = authenticate(username=username, password=password)
-			if user is not None:
-				if user.is_active:
-					print 'yay'
-					login(request, user)
-					results['success'] = 'success'
-				else:
-					results['success'] = 'validate'
-		"""
+				results['username'] = user.username
+				results['first_name'] = user.first_name
+				results['last_name'] = user.last_name
 
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
