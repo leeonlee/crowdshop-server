@@ -22,6 +22,9 @@ def login(request):
 	print request.body
 	results = {'success':'invalid'}
 	if request.method == 'POST':
+		print 'THIS IS A POST'
+		print request.POST.get('username')
+		print request.POST.get('username')[0]
 		form = LoginForm(request.POST)
 		if form.is_valid():
 			username = form.cleaned_data['username']
