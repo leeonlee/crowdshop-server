@@ -16,7 +16,7 @@ def index(request):
 	return render_to_response("crowdshop/index.html", RequestContext(request))
 
 @csrf_exempt
-def login(request):
+def loginview(request):
 	results = {'success':'invalid'}
 	if request.method == 'POST':
 		username = request.POST.get('username')
