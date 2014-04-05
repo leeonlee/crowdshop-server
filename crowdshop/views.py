@@ -33,25 +33,27 @@ def loginview(request):
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
 
+@csrf_exempt
 def createTask(request):
 	results = {'success':'invalid'}
 	if request.method == 'POST':
-		form = CreateTaskForm(request.POST)
-		if form.is_valid():
-			title = form.cleaned_data['title']
-			desc = form.cleaned_data['desc']
-			threshold = form.cleaned_data['threshold']
-			task = Task.objects.create()
-			task.owner = User.objects.get(username = username)
-			task.title = title
-			task.desc = desc
-			task.threshold = threshold
-			task.save()
-			results['success'] = 'success'
-			results['owner'] = task.owner
-			results['title'] = task.title
-			results['desc'] = task.desc
-			results['threshold'] = task.threshold
+			username = request.POST.get('username')
+			title = request.POST.get('title')
+			desc = request.POST.get('desc')
+			threshold = request.POST.get('threshold')
+			task = Task.objects.create(
+				owner = User.objects.get(username = username),
+				title = title,
+				desc = desc, 
+				threshold = threshold
+			)
+			results = {
+				'success':'success',
+				'owner': task.owner.username,
+				'title': task.title,
+				'desc': task.desc,
+				'threshold': task.threshold,
+			}
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
 
