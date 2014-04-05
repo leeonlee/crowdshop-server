@@ -7,4 +7,5 @@ from crowdshop import views
 urlpatterns = patterns('',
 	url(r'^loginview', views.loginview, name='loginview'),
 	url(r'^createtask', views.createTask, name='createTask'),
+    url(r'^tasklist/', TaskList.as_view()),
 )

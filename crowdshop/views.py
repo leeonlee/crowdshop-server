@@ -29,7 +29,6 @@ def loginview(request):
 				results['username'] = user.username
 				results['first_name'] = user.first_name
 				results['last_name'] = user.last_name
-
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
 
