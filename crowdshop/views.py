@@ -41,11 +41,13 @@ def createTask(request):
 			title = request.POST.get('title')
 			desc = request.POST.get('desc')
 			threshold = request.POST.get('threshold')
+			reward = request.POST.get('reward')
 			task = Task.objects.create(
 				owner = User.objects.get(username = username),
 				title = title,
 				desc = desc, 
-				threshold = threshold
+				threshold = threshold,
+				reward = reward,
 			)
 			results = {
 				'success':'success',
@@ -53,6 +55,7 @@ def createTask(request):
 				'title': task.title,
 				'desc': task.desc,
 				'threshold': task.threshold,
+				'reward': reward,
 			}
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
