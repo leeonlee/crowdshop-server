@@ -81,7 +81,7 @@ SOCIALACCOUNT_PROVIDERS = \
         'VERIFIED_EMAIL': False}
     }
 
-SITE_ID = 1
+SITE_ID = 2
 
 ROOT_URLCONF = 'crowdshop_server.urls'
 
