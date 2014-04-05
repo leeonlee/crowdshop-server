@@ -17,13 +17,17 @@ def index(request):
 
 @csrf_exempt
 def login(request):
-	print request.POST
-	print 'whats up'
 	results = {'success':'invalid'}
 	if request.method == 'POST':
-		print 'THIS IS A POST'
-		print request.POST.get('username')
-		print request.POST.get('username')[0]
+		username = request.POST.get('username')
+		password = request.POST.get('password')
+		user = authenticate(username=username, password=password)
+		if user is not None:
+			if user.is_active:
+				print 'yay'
+				login(request, user)
+				results['success'] = 'success'
+
 		form = LoginForm(request.POST)
 		if form.is_valid():
 			username = form.cleaned_data['username']
