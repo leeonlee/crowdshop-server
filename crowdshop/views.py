@@ -27,8 +27,8 @@ def login(request):
 			user = authenticate(username=username, password=password)
 			if user is not None:
 				if user.is_active:
-					login(request, user)
 					print 'yay'
+					login(request, user)
 					results['success'] = 'success'
 				else:
 					results['success'] = 'validate'
