@@ -61,6 +61,12 @@ def createTask(request):
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
 
+def venmoWebHook(request):
+	response = request.GET.get('venmo_challenge')
+	# results = {'success':'invalid', 'venmo_challenge': venmo}
+	# response = json.dumps(results)
+	return HttpResponse(response)
+
 class UserViewSet(viewsets.ModelViewSet):
 	"""
 	API endpoint that allows users to be viewed or edited
