@@ -26,6 +26,7 @@ def loginview(request):
 			if user.is_active:
 				login(request, user)
 				results['success'] = 'success'
+				results['id'] = user.id
 				results['username'] = user.username
 				results['first_name'] = user.first_name
 				results['last_name'] = user.last_name
