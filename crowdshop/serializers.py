@@ -15,5 +15,5 @@ class TaskSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = Task
-		fields = ('owner', 'owner_id', 'title', 'desc', 'threshold', 'timeStamp', 'claimed_by', 'claimed_by_id')
+		fields = ('owner', 'owner_id', 'title', 'id', 'desc', 'threshold', 'timeStamp', 'claimed_by', 'claimed_by_id')
 
