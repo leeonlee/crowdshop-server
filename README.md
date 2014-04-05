@@ -18,4 +18,5 @@ Crowdshop Server [![Codeship Status for leeonlee/crowdshop-serv](https://www.cod
 
 TODO
 ====
+- delete password field
 
