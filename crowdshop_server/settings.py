@@ -72,13 +72,16 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 # auth and allauth settings
 LOGIN_REDIRECT_URL = '/'
 SOCIALACCOUNT_QUERY_EMAIL = True
-SOCIALACCOUNT_PROVIDERS = {
-    'facebook': {
-        'SCOPE': ['email', 'publish_stream'],
-        'METHOD': 'js_sdk'  # instead of 'oauth2'
+SOCIALACCOUNT_PROVIDERS = \
+    {'facebook':
+       {'SCOPE': ['email', 'publish_stream'],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'METHOD': 'oauth2',
+        'LOCALE_FUNC': 'path.to.callable',
+        'VERIFIED_EMAIL': False}
     }
-}
 
+SITE_ID = 1
 
 ROOT_URLCONF = 'crowdshop_server.urls'
 
