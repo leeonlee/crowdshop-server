@@ -24,7 +24,6 @@ def loginview(request):
 		user = authenticate(username=username, password=password)
 		if user is not None:
 			if user.is_active:
-				print 'yay'
 				login(request, user)
 				results['success'] = 'success'
 
