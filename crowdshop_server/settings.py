@@ -36,7 +36,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crowdshop',
     'rest_framework',
+    'south',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -53,11 +55,8 @@ ROOT_URLCONF = 'crowdshop_server.urls'
 WSGI_APPLICATION = 'crowdshop_server.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
+# Internationalization # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
-DATABASES = {
-}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -76,9 +75,27 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-# Parse database configuration from $DATABASE_URL
-import dj_database_url
-DATABASES['default'] =  dj_database_url.config()
+# Database
+# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
+isCodeship = os.getenv('PG_USER', None)
+isHeroku = os.getenv('DATABASE_URL', None)
+
+DATABASES = {}
+if isCodeship is not None:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'test',
+            'USER': os.environ.get('PG_USER'),
+            'PASSWORD': os.environ.get('PG_PASSWORD'),
+            'HOST': '127.0.0.1',
+        }
+    }
+else:
+    import dj_database_url
+    DATABASES['default'] = dj_database_url.config(default='postgres://a:a@localhost/crowdshop_server')
+    if isHeroku is not None:
+        DEBUG = True
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -87,7 +104,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ALLOWED_HOSTS = ['*']
 
 # Static asset configuration
-import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
