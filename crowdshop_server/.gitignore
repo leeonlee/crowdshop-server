@@ -1,0 +1,7 @@
+venv
+*.pyc
+staticfiles
+*.DS_STORE
+*.swp
+*.swo
+*.orig
