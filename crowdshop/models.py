@@ -18,7 +18,8 @@ class Task(models.Model):
 	title = models.CharField(max_length=255)
 	desc = models.CharField(max_length=255)
 	claimed_by = models.ForeignKey(User, related_name="claimed_by", blank=True, null=True)
-	threshold = models.IntegerField()
+	threshold = models.IntegerField(default = 0)
+	reward = models.IntegerField(default = 0)
 	timeStamp = models.DateTimeField(auto_now=True)
 
 	def __unicode__(self):
