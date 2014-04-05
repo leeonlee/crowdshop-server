@@ -11,4 +11,4 @@ class TaskSerializer(serializers.HyperlinkedModelSerializer):
 	owner = serializers.RelatedField(many=False, read_only=True)
 	class Meta:
 		model = Task
-		fields = ('owner', 'title', 'desc',)
+		fields = ('owner', 'title', 'desc', 'threshold')
