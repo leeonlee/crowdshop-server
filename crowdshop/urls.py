@@ -8,4 +8,6 @@ urlpatterns = patterns('',
 	url(r'^loginview', views.loginview, name='loginview'),
 	url(r'^createtask', views.createTask, name='createTask'),
     url(r'^tasklist/', TaskList.as_view()),
+    url(r'^tasklistother/', TaskListOthers.as_view()),
+    url(r'^tasklist/(?P<username>.+)/$', TaskListUser.as_view()),
 )

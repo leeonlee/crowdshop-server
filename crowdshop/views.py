@@ -72,6 +72,17 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 class TaskList(generics.ListAPIView):
 	serializer_class = TaskSerializer
-
 	def get_queryset(self):
 		return Task.objects.filter(claimed_by=None)
+
+class TaskListUser(generics.ListAPIView):
+	serializer_class = TaskSerializer
+	def get_queryset(self):
+		username = self.kwargs['username']
+		return Task.objects.filter(owner=username, claimed_by=None)
+
+class TaskListOthers(generics.ListAPIView):
+	serializer_class = TaskSerializer
+	def get_queryset(self):
+		username = self.kwargs['username']
+		return Task.objects.filter(owner=username)
