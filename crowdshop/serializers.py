@@ -8,12 +8,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('id', 'username', 'first_name', 'last_name')
 
 class TaskSerializer(serializers.HyperlinkedModelSerializer):
-	owner = serializers.RelatedField(many=False, read_only=True)
-	owner_id = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
-	claimed_by = serializers.RelatedField(many=False, read_only=True)
-	claimed_by_id = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
-
 	class Meta:
 		model = Task
-		fields = ('owner', 'owner_id', 'title', 'id', 'desc', 'threshold', 'timeStamp', 'claimed_by', 'claimed_by_id')
+		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'timeStamp', 'claimed_by')
+		depth = 1
 
