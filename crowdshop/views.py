@@ -5,6 +5,7 @@ from rest_framework import viewsets
 from crowdshop.models import Task
 from crowdshop.serializers import UserSerializer, TaskSerializer
 from django.contrib.auth.models import User
+from rest_framework import generics
 
 # Create your views here.
 def index(request):
@@ -23,3 +24,9 @@ class TaskViewSet(viewsets.ModelViewSet):
 	"""
 	queryset = Task.objects.all()
 	serializer_class = TaskSerializer
+
+class TaskList(generics.ListAPIView):
+	serializer_class = TaskSerializer
+
+	def get_queryset(self):
+		return Task.objects.filter(claimed_by=None)
