@@ -24,7 +24,7 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		usernames = []
 		for i in range(10):
-			user = createUser
+			user = createUser()
 			usernames.append(user.username)
 		for i in range(len(usernames)):
 			createTask(usernames[i], TITLES[i])
@@ -41,7 +41,7 @@ def createUser():
 def createTask(username, title):
 	username = username
 	title = title
-	desc = faker.text(50)
+	desc = fake.text(50)
 	threshold = randint(5, 20)
 	reward = randint(2, 5)
 	task = Task.objects.create(
