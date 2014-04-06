@@ -57,7 +57,10 @@ def createTask(request):
 				'title': task.title,
 				'desc': task.desc,
 				'threshold': task.threshold,
-				'reward': reward,
+				'reward': task.reward,
+				'complete': task.complete,
+				'timeStamp': task.timeStamp,
+				'claimed_by': task.claimed_by,
 			}
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
