@@ -84,8 +84,8 @@ def confirmPurchase(request):
 			task_id = request.POST.get('task_id')
 			actual_price = request.POST.get('actual_price')
 			task = Task.objects.get(id = task_id)
-			if actual_price > threshold:
-				break
+			if int(actual_price) > task.threshold:
+				pass
 			else:
 				task.actual_price = actual_price
 				task.save()
@@ -101,7 +101,7 @@ def completeDeal(request):
 	if request.method == 'POST':
 			task_id = request.POST.get('task_id')
 			task = Task.objects.get(id = task_id)
-			task.completeDeal = True
+			task.complete = True
 			task.save()
 			results = {
 				'success':'success',
