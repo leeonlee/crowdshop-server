@@ -61,6 +61,54 @@ def createTask(request):
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
 
+@csrf_exempt
+def claimTask(request):
+	results = {'success':'invalid'}
+	if request.method == 'POST':
+			task_id = request.POST.get('task_id')
+			claimed_by = request.POST.get('username')
+			claimee = User.objects.get(username = claimed_by)
+			task = Task.objects.get(id = task_id)
+			task.claimed_by = claimee
+			task.save()
+			results = {
+				'success':'success',
+			}
+	response = json.dumps(results)
+	return HttpResponse(response, content_type='application/json')
+
+@csrf_exempt
+def confirmPurchase(request):
+	results = {'success':'invalid'}
+	if request.method == 'POST':
+			task_id = request.POST.get('task_id')
+			actual_price = request.POST.get('actual_price')
+			task = Task.objects.get(id = task_id)
+			if actual_price > threshold:
+				break
+			else:
+				task.actual_price = actual_price
+				task.save()
+				results = {
+					'success': 'success',
+				}
+	response = json.dumps(results)
+	return HttpResponse(response, content_type='application/json')
+
+@csrf_exempt
+def completeDeal(request):
+	results = {'success':'invalid'}
+	if request.method == 'POST':
+			task_id = request.POST.get('task_id')
+			task = Task.objects.get(id = task_id)
+			task.completeDeal = True
+			task.save()
+			results = {
+				'success':'success',
+			}
+	response = json.dumps(results)
+	return HttpResponse(response, content_type='application/json')
+
 def venmoWebHook(request):
 	response = request.GET.get('venmo_challenge')
 	# results = {'success':'invalid', 'venmo_challenge': venmo}
