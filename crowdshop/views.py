@@ -50,6 +50,7 @@ def createTask(request):
 				threshold = threshold,
 				reward = reward,
 			)
+			timeStamp = str(task.timeStamp)
 			results = {
 				'success':'success',
 				'owner': task.owner.username,
@@ -59,7 +60,7 @@ def createTask(request):
 				'threshold': task.threshold,
 				'reward': task.reward,
 				'complete': task.complete,
-				'timeStamp': task.timeStamp,
+				'timeStamp': timeStamp,
 			}
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
