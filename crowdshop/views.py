@@ -53,7 +53,7 @@ def createTask(request):
 			results = {
 				'success':'success',
 				'owner': task.owner.username,
-				'id': task.id
+				'id': task.id,
 				'title': task.title,
 				'desc': task.desc,
 				'threshold': task.threshold,
