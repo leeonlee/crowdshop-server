@@ -69,6 +69,10 @@ class TaskDetail(generics.RetrieveAPIView):
 	queryset = Task.objects.all()
 	serializer_class = TaskSerializer
 
+@api_view(('POST',))
+def claimTask(request, pk):	
+	print request.DATA
+	return Response({"message": "Hello world"})
 '''
 
 @csrf_exempt
