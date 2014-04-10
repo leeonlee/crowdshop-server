@@ -31,6 +31,14 @@ class UserDetail(generics.RetrieveAPIView):
 	queryset = User.objects.all()
 	serializer_class = UserDetailSerializer
 
+class UserTasks(generics.ListAPIView):
+	serializer_class = TaskListSerializer
+
+	def get_queryset(self):
+		username = self.kwargs['username']
+		owner = User.objects.get(username=username)
+		return Task.objects.filter(owner=owner)
+
 class TaskList(generics.ListCreateAPIView):
 	queryset = Task.objects.all()
 	serializer_class = TaskListSerializer
