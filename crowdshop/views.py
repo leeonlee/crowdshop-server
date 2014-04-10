@@ -71,7 +71,7 @@ class TaskDetail(generics.RetrieveAPIView):
 
 @api_view(('POST',))
 def claimTask(request, pk):	
-	print request.DATA
+	print request.POST.get("message")
 	return Response({"message": "Hello world"})
 '''
 
