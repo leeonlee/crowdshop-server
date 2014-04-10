@@ -40,7 +40,25 @@ class UserTasks(generics.ListAPIView):
 		return Task.objects.filter(owner=owner)
 
 class TaskList(generics.ListCreateAPIView):
-	queryset = Task.objects.all()
+	def get_queryset(self):
+		queryset = Task.objects.all()
+		username = self.request.QUERY_PARAMS.get('username', None)
+		claimed = self.request.QUERY_PARAMS.get('claimed', None)
+		claimed_by = self.request.QUERY_PARAMS.get('claimed_by', None)
+		if username is not None:
+			queryset = queryset.filter(owner = User.objects.get(username=username))
+
+		if claimed is not None:
+			if claimed == "false":
+				queryset = queryset.filter(claimed_by = None)
+			elif claimed == "true":
+				queryset = queryset.exclude(claimed_by = None)
+
+		if claimed_by is not None:
+			queryset = queryset.filter(claimed_by = User.objects.get(username=claimed_by))
+
+		return queryset
+
 	serializer_class = TaskListSerializer
 
 class TaskDetail(generics.RetrieveAPIView):

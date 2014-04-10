@@ -4,14 +4,7 @@ from rest_framework import serializers
 
 class TaskListSerializer(serializers.ModelSerializer):
 	owner = serializers.SlugRelatedField(many=False, slug_field='username')	
-	class Meta:
-		model = Task
-		fields = ('owner', 'title', 'id', 'desc', 'reward', 'timeStamp')
-
-class TaskSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Task
-		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'timeStamp')
+		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'timeStamp', 'claimed_by')
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
