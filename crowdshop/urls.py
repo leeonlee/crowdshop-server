@@ -10,5 +10,4 @@ urlpatterns = patterns('',
 	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view(), name='userdetail'),
 	url(r'^tasks/$', views.TaskList.as_view(), name='tasklist'),
 	url(r'^tasks/(?P<pk>[0-9]+)/$', views.TaskDetail.as_view(), name='taskdetail'),
-	url(r'^usertasks/(?P<username>\w+)/$', views.UserTasks.as_view(), name='usertasks'),
 )
