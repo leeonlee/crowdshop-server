@@ -14,7 +14,7 @@ class CreateTaskForm(forms.Form):
 
 # Create your models here.
 class Task(models.Model):
-	owner = models.ForeignKey(User, related_name="owner")
+	owner = models.ForeignKey(User, related_name="tasks")
 	title = models.CharField(max_length=255)
 	desc = models.CharField(max_length=255)
 	claimed_by = models.ForeignKey(User, related_name="claimed_by", blank=True, null=True)

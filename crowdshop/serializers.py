@@ -7,9 +7,21 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 		model = User
 		fields = ('id', 'username', 'first_name', 'last_name')
 
+'''
 class TaskSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = Task
 		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'complete', 'timeStamp', 'claimed_by')
 		depth = 1
+'''
 
+class TaskModelSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Task
+		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'timeStamp')
+
+class UserDetailSerializer(serializers.ModelSerializer):
+	tasks = TaskModelSerializer(many=True)
+	class Meta:
+		model = User
+		fields = ('id', 'username', 'first_name', 'last_name', 'tasks')

@@ -6,11 +6,36 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
 from crowdshop.models import Task
-from crowdshop.serializers import UserSerializer, TaskSerializer
+from crowdshop.serializers import UserSerializer, UserDetailSerializer, TaskModelSerializer
 from django.contrib.auth.models import User
 from rest_framework import generics
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import renderers
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
+@api_view(('GET',))
+def api_root(request, format=None):
+	return Response({
+		'users': reverse('userlist', request=request, format=format),
+		'tasks': reverse('tasklist', request=request, format=format),
+	})
+
+class UserList(generics.ListCreateAPIView):
+	queryset = User.objects.all()
+	paginate_by = 1
+	serializer_class = UserSerializer
+
+class UserDetail(generics.RetrieveAPIView):
+	queryset = User.objects.all()
+	serializer_class = UserDetailSerializer
+
+class TaskList(generics.ListCreateAPIView):
+	queryset = Task.objects.all()
+	serializer_class = TaskModelSerializer
+
+'''
 
 @csrf_exempt
 def loginview(request):
@@ -155,4 +180,4 @@ class ClaimedTasks(generics.ListAPIView):
 		owner = User.objects.get(username = username)
 		return Task.objects.filter(claimed_by = owner)
 
-
+'''
