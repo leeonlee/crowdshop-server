@@ -24,14 +24,16 @@ def api_root(request, format=None):
 
 class UserList(generics.ListCreateAPIView):
 	queryset = User.objects.all()
-	paginate_by = 1
+	paginate_by = 10
 	serializer_class = UserSerializer
 
 class UserDetail(generics.RetrieveAPIView):
+	paginate_by = 10
 	queryset = User.objects.all()
 	serializer_class = UserDetailSerializer
 
 class UserTasks(generics.ListAPIView):
+	paginate_by = 10
 	serializer_class = TaskListSerializer
 
 	def get_queryset(self):
@@ -40,6 +42,7 @@ class UserTasks(generics.ListAPIView):
 		return Task.objects.filter(owner=owner)
 
 class TaskList(generics.ListCreateAPIView):
+	paginate_by = 10
 	def get_queryset(self):
 		queryset = Task.objects.all()
 		username = self.request.QUERY_PARAMS.get('username', None)
@@ -62,6 +65,7 @@ class TaskList(generics.ListCreateAPIView):
 	serializer_class = TaskListSerializer
 
 class TaskDetail(generics.RetrieveAPIView):
+	paginate_by = 10
 	queryset = Task.objects.all()
 	serializer_class = TaskSerializer
 
