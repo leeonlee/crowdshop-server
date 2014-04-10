@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from crowdshop.models import Task
 from rest_framework import serializers
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
 		fields = ('id', 'username', 'first_name', 'last_name')
@@ -14,14 +14,19 @@ class TaskSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'complete', 'timeStamp', 'claimed_by')
 		depth = 1
 '''
+class TaskListSerializer(serializers.ModelSerializer):
+	owner = serializers.SlugRelatedField(many=False, slug_field='username')	
+	class Meta:
+		model = Task
+		fields = ('owner', 'title', 'id', 'desc', 'reward', 'timeStamp')
 
-class TaskModelSerializer(serializers.ModelSerializer):
+class TaskSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Task
 		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'timeStamp')
 
 class UserDetailSerializer(serializers.ModelSerializer):
-	tasks = TaskModelSerializer(many=True)
+	tasks = TaskSerializer(many=True)
 	class Meta:
 		model = User
 		fields = ('id', 'username', 'first_name', 'last_name', 'tasks')

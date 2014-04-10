@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
 from crowdshop.models import Task
-from crowdshop.serializers import UserSerializer, UserDetailSerializer, TaskModelSerializer
+from crowdshop.serializers import UserSerializer, UserDetailSerializer, TaskSerializer, TaskListSerializer
 from django.contrib.auth.models import User
 from rest_framework import generics
 from django.views.decorators.csrf import csrf_exempt
@@ -33,7 +33,11 @@ class UserDetail(generics.RetrieveAPIView):
 
 class TaskList(generics.ListCreateAPIView):
 	queryset = Task.objects.all()
-	serializer_class = TaskModelSerializer
+	serializer_class = TaskListSerializer
+
+class TaskDetail(generics.RetrieveAPIView):
+	queryset = Task.objects.all()
+	serializer_class = TaskSerializer
 
 '''
 
