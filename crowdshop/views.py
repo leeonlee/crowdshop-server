@@ -46,11 +46,15 @@ class TaskList(generics.ListCreateAPIView):
 	def get_queryset(self):
 		queryset = Task.objects.all()
 		username = self.request.QUERY_PARAMS.get('username', None)
+		exclude_user = self.request.QUERY_PARAMS.get('exclude', None)
 		claimed = self.request.QUERY_PARAMS.get('claimed', None)
 		claimed_by = self.request.QUERY_PARAMS.get('claimed_by', None)
+
 		if username is not None:
 			queryset = queryset.filter(owner = User.objects.get(username=username))
 
+		if exclude_user is not None:
+			queryset = queryset.exclude(owner = User.objects.get(username=exclude_user))
 		if claimed is not None:
 			if claimed == "false":
 				queryset = queryset.filter(claimed_by = None)
@@ -70,7 +74,8 @@ class TaskDetail(generics.RetrieveAPIView):
 	serializer_class = TaskSerializer
 
 @api_view(('POST',))
-def claimTask(request, pk):	
+def claimTask(request):	
+	results = {'success':'invalid'}
 	print request.POST.get("message")
 	return Response({"message": "Hello world"})
 '''
