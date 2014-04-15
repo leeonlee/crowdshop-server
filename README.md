@@ -25,7 +25,7 @@ returns all tasks
 
 	owner (username of user who owns the task)
 	title
-	id of task
+	id (of task)
 	desc
 	reward
 	timeStamp
@@ -45,7 +45,7 @@ return information of task with id of id
 
 	owner (username of user who owns the task)
 	title
-	id of task
+	id (of task)
 	desc
 	reward
 	timeStamp
