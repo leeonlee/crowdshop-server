@@ -1,48 +1,52 @@
 Crowdshop Server [![Codeship Status for leeonlee/crowdshop-serv](https://www.codeship.io/projects/665e9fe0-9e9b-0131-49c8-6626d4860316/status?branch=master)](https://www.codeship.io/projects/18062)
 ================
 
-/users/
+Below are the API calls available and the keys they return
 
-returns list of all users
+/users/  
+returns list of all users  
 
 	id
 	username
-	first name
-	last name
+	first_name
+	last_name
 
-/users/id
-
+/users/id/  
 returns information of user with id of id
 
 	id
 	username
-	first name
-	last name
-	list of all tasks owned by user (see /tasks/id for format)
+	first_name
+	last_name
+	list of all tasks owned by user (see /tasks/id/ for format)
 
-/tasks/
-
+/tasks/  
 returns all tasks
 
-	- owner (username of user who owns the task)
-	- title
-	- id of task
-	- desc
-	- reward
-	- timeStamp
-	- claimed_by
+	owner (username of user who owns the task)
+	title
+	id of task
+	desc
+	reward
+	timeStamp
+	claimed_by
 
-/users/
-- all users
+Filters available
+- username
+- exclude_user
+- claimed
+- claimed_by
 
-/opentasks/user/
-- tasks open to user
+/tasks/id/
+return information of task with id of id
 
-/requestedtasks/user/
-- tasks made by user
-
-/claimedtasks/user/
-- tasks taken on by user
+	owner (username of user who owns the task)
+	title
+	id of task
+	desc
+	reward
+	timeStamp
+	claimed_by
 
 TODO
 ====

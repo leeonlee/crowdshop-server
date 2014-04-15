@@ -16,7 +16,7 @@ class TaskSerializer(serializers.ModelSerializer):
 		model = Task
 		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'timeStamp', 'claimed_by')
 
-class UserSerializer(serializers.ModelSerializer):
+class UserListSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
 		fields = ('id', 'username', 'first_name', 'last_name')

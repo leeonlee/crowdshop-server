@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
 from crowdshop.models import Task
-from crowdshop.serializers import UserSerializer, UserDetailSerializer, TaskSerializer, TaskListSerializer
+from crowdshop.serializers import UserListSerializer, UserDetailSerializer, TaskSerializer, TaskListSerializer
 from django.contrib.auth.models import User
 from rest_framework import generics
 from django.views.decorators.csrf import csrf_exempt
@@ -25,7 +25,7 @@ def api_root(request, format=None):
 class UserList(generics.ListCreateAPIView):
 	queryset = User.objects.all()
 	paginate_by = 10
-	serializer_class = UserSerializer
+	serializer_class = UserListSerializer
 
 class UserDetail(generics.RetrieveAPIView):
 	paginate_by = 10
@@ -188,7 +188,7 @@ class UserViewSet(viewsets.ModelViewSet):
 	API endpoint that allows users to be viewed or edited
 	"""
 	queryset = User.objects.all()
-	serializer_class = UserSerializer
+	serializer_class = UserListSerializer
 
 class TaskViewSet(viewsets.ModelViewSet):
 	"""
