@@ -86,32 +86,6 @@ class TaskDetail(generics.RetrieveAPIView):
 	queryset = Task.objects.all()
 	serializer_class = TaskDetailSerializer
 
-@api_view(('POST',))
-def claimTask(request):	
-	results = {'success':'invalid'}
-	print request.POST.get("message")
-	return Response({"message": "Hello world"})
-'''
-
-@csrf_exempt
-def loginview(request):
-	results = {'success':'invalid'}
-	if request.method == 'POST':
-		username = request.POST.get('username')
-		password = request.POST.get('password')
-		user = authenticate(username=username, password=password)
-		if user is not None:
-			if user.is_active:
-				login(request, user)
-				results['success'] = 'success'
-				results['id'] = user.id
-				results['username'] = user.username
-				results['first_name'] = user.first_name
-				results['last_name'] = user.last_name
-
-	response = json.dumps(results)
-	return HttpResponse(response, content_type='application/json')
-
 @csrf_exempt
 def createTask(request):
 	results = {'success':'invalid'}
@@ -189,6 +163,15 @@ def completeDeal(request):
 			}
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
+
+
+
+'''
+@api_view(('POST',))
+def claimTask(request):	
+	results = {'success':'invalid'}
+	print request.POST.get("message")
+	return Response({"message": "Hello world"})
 
 def venmoWebHook(request):
 	response = request.GET.get('venmo_challenge')
