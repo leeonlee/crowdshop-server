@@ -3,7 +3,7 @@ Crowdshop Server [![Codeship Status for leeonlee/crowdshop-serv](https://www.cod
 
 Below are the API calls available and the keys they return
 
-/users/  
+## /users/ ## 
 returns list of all users  
 
 	id
@@ -11,7 +11,7 @@ returns list of all users
 	first_name
 	last_name
 
-/users/id/  
+## /users/id/ ##
 returns information of user with id of id
 
 	id
@@ -20,7 +20,7 @@ returns information of user with id of id
 	last_name
 	list of all tasks owned by user (see /tasks/id/ for format)
 
-/tasks/  
+## /tasks/ ##
 returns all tasks
 
 	owner (username of user who owns the task)
@@ -40,7 +40,7 @@ Filters available (they can be chained)
 - claimed_by_user - returns all tasks claimed by user with the username specified
 - claimed_by_id - returns all tasks claimed by user with the id specified
 
-/tasks/id/
+## /tasks/id/ ##
 return information of task with id of id
 
 	owner (username of user who owns the task)
