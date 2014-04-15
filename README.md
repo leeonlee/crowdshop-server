@@ -3,7 +3,7 @@ Crowdshop Server [![Codeship Status for leeonlee/crowdshop-serv](https://www.cod
 
 Below are the API calls available and the keys they return
 
-## /users/ ## 
+## /users/ ##
 returns list of all users  
 
 	id
@@ -50,8 +50,4 @@ return information of task with id of id
 	reward
 	timeStamp
 	claimed_by
-
-TODO
-====
-- delete password field
 
