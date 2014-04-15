@@ -2,27 +2,51 @@ from django.contrib.auth.models import User
 from crowdshop.models import Task
 from rest_framework import serializers
 
-class TaskListSerializer(serializers.ModelSerializer):
-	owner = serializers.SlugRelatedField(many=False, slug_field='username')	
-	claimed_by = serializers.RelatedField(many=False)
-	class Meta:
-		model = Task
-		fields = ('owner', 'title', 'id', 'desc', 'reward', 'timeStamp', 'claimed_by')
-
-class TaskDetailSerializer(serializers.ModelSerializer):
-	owner = serializers.RelatedField(many=False)
-	claimed_by = serializers.RelatedField(many=False)
-	class Meta:
-		model = Task
-		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'timeStamp', 'claimed_by')
-
 class UserListSerializer(serializers.ModelSerializer):
+	"""
+	Serializer for displaying all users
+	Also used to display brief information of a user
+	"""
 	class Meta:
 		model = User
 		fields = ('id', 'username', 'first_name', 'last_name')
 
+
+class TaskDetailSerializer(serializers.ModelSerializer):
+	"""
+	Serializer for displaying details of a task
+	"""
+	owner = UserListSerializer(many=False)
+	claimed_by = UserListSerializer(many=False)
+	class Meta:
+		model = Task
+		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'timeStamp', 'claimed_by')
+
+class TaskListSerializer(serializers.ModelSerializer):
+	"""
+	Serializer for displaying all tasks
+	"""
+	owner = UserListSerializer(many=False)
+	claimed_by = UserListSerializer(many=False)
+	class Meta:
+		model = Task
+		fields = ('owner', 'title', 'id', 'desc', 'reward', 'timeStamp', 'claimed_by')
+
+class UserTaskSerializer(serializers.ModelSerializer):
+	"""
+	Serializer for displaying all of a user's tasks
+	Used to elminate redundancy in showing the owner's information
+	"""
+	claimed_by = UserListSerializer(many=False)
+	class Meta:
+		model = Task
+		fields = ('title', 'id', 'desc', 'reward', 'timeStamp', 'claimed_by')
+
 class UserDetailSerializer(serializers.ModelSerializer):
-	tasks = TaskSerializer(many=True)
+	"""
+	Serializer for displaying user's information
+	"""
+	tasks = UserTaskSerializer(many=True)
 	class Meta:
 		model = User
 		fields = ('id', 'username', 'first_name', 'last_name', 'tasks')
