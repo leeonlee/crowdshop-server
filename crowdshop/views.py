@@ -45,24 +45,37 @@ class TaskList(generics.ListCreateAPIView):
 	paginate_by = 10
 	def get_queryset(self):
 		queryset = Task.objects.all()
+		id_filter = self.request.QUERY_PARAMS.get('id', None)
 		username = self.request.QUERY_PARAMS.get('username', None)
-		exclude_user = self.request.QUERY_PARAMS.get('exclude', None)
+		exclude_user = self.request.QUERY_PARAMS.get('exclude_user', None)
+		exclude_id = self.request.QUERY_PARAMS.get('exclude_id', None)
 		claimed = self.request.QUERY_PARAMS.get('claimed', None)
-		claimed_by = self.request.QUERY_PARAMS.get('claimed_by', None)
+		claimed_by_user = self.request.QUERY_PARAMS.get('claimed_by_user', None)
+		claimed_by_id = self.request.QUERY_PARAMS.get('claimed_by_id', None)
+		
+		if id_filter is not None:
+			queryset = queryset.filter(owner = User.objects.get(id=id_filter))
 
 		if username is not None:
 			queryset = queryset.filter(owner = User.objects.get(username=username))
 
 		if exclude_user is not None:
 			queryset = queryset.exclude(owner = User.objects.get(username=exclude_user))
+
+		if exclude_id is not None:
+			queryset = queryset.exclude(owner = User.objects.get(id=exclude_id))
+
 		if claimed is not None:
 			if claimed == "false":
-				queryset = queryset.filter(claimed_by = None)
+				queryset = queryset.filter(claimed_by_user = None)
 			elif claimed == "true":
-				queryset = queryset.exclude(claimed_by = None)
+				queryset = queryset.exclude(claimed_by_user = None)
 
-		if claimed_by is not None:
-			queryset = queryset.filter(claimed_by = User.objects.get(username=claimed_by))
+		if claimed_by_user is not None:
+			queryset = queryset.filter(claimed_by = User.objects.get(username=claimed_by_user))
+
+		if claimed_by_id is not None:
+			queryset = queryset.filter(claimed_by = User.objects.get(id=claimed_by_id))
 
 		return queryset
 
