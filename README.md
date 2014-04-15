@@ -18,18 +18,18 @@ returns information of user with id of id
 	username
 	first_name
 	last_name
-	list of all tasks owned by user (see /tasks/id/ for format)
+	list of all tasks owned by user with owner omitted(see /tasks/id/ for format)
 
 ## /tasks/ ##
 returns all tasks
 
-	owner (username of user who owns the task)
+	owner (dict of information returned by /users/)
 	title
 	id (of task)
 	desc
 	reward
 	timeStamp
-	claimed_by
+	claimed_by (dict of information returned by /users/, except for claimer)
 
 Filters available (they can be chained)
 - username - Returns all tasks owned by the user with the username specified
@@ -43,11 +43,11 @@ Filters available (they can be chained)
 ## /tasks/id/ ##
 return information of task with id of id
 
-	owner (username of user who owns the task)
+	owner (dict of information returned by /users/)
 	title
 	id (of task)
 	desc
 	reward
 	timeStamp
-	claimed_by
+	claimed_by (dict of information returned by /users/, except for claimer)
 
