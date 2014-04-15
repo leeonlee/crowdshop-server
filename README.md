@@ -31,11 +31,14 @@ returns all tasks
 	timeStamp
 	claimed_by
 
-Filters available
-- username
-- exclude_user
-- claimed
-- claimed_by
+Filters available (they can be chained)
+- username - Returns all tasks owned by the user with the username specified
+- id - Returns all tasks owned by user with the id specified
+- exclude_user - returns all tasks not owned by user specified
+- exclude_id - returns all tasks not owned by id specified
+- claimed - if set to false, returns all non claimed tasks; if set to true, returns all claimed tasks
+- claimed_by_user - returns all tasks claimed by user with the username specified
+- claimed_by_id - returns all tasks claimed by user with the id specified
 
 /tasks/id/
 return information of task with id of id
