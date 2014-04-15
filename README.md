@@ -2,22 +2,28 @@ Crowdshop Server [![Codeship Status for leeonlee/crowdshop-serv](https://www.cod
 ================
 
 /users/
+
 returns list of all users
-	- id
-	- username
-	- first name
-	- last name
+
+	id
+	username
+	first name
+	last name
 
 /users/id
+
 returns information of user with id of id
-	- id
-	- username
-	- first name
-	- last name
-	- list of all tasks owned by user (see /tasks/id for format)
+
+	id
+	username
+	first name
+	last name
+	list of all tasks owned by user (see /tasks/id for format)
 
 /tasks/
+
 returns all tasks
+
 	- owner (username of user who owns the task)
 	- title
 	- id of task
