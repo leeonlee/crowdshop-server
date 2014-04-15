@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
 from crowdshop.models import Task
-from crowdshop.serializers import UserListSerializer, UserDetailSerializer, TaskSerializer, TaskListSerializer
+from crowdshop.serializers import UserListSerializer, UserDetailSerializer, TaskDetailSerializer, TaskListSerializer
 from django.contrib.auth.models import User
 from rest_framework import generics
 from django.views.decorators.csrf import csrf_exempt
@@ -84,7 +84,7 @@ class TaskList(generics.ListCreateAPIView):
 class TaskDetail(generics.RetrieveAPIView):
 	paginate_by = 10
 	queryset = Task.objects.all()
-	serializer_class = TaskSerializer
+	serializer_class = TaskDetailSerializer
 
 @api_view(('POST',))
 def claimTask(request):	
@@ -208,29 +208,29 @@ class TaskViewSet(viewsets.ModelViewSet):
 	API endpoint that allows tasks to be viewed or edited
 	"""
 	queryset = Task.objects.all()
-	serializer_class = TaskSerializer
+	serializer_class = TaskDetailSerializer
 
 class TaskList(generics.ListAPIView):
-	serializer_class = TaskSerializer
+	serializer_class = TaskDetailSerializer
 	def get_queryset(self):
 		return Task.objects.filter(claimed_by=None)
 
 class OpenTasks(generics.ListAPIView):
-	serializer_class = TaskSerializer
+	serializer_class = TaskDetailSerializer
 	def get_queryset(self):
 		username = self.kwargs['username']
 		owner = User.objects.get(username = username)
 		return Task.objects.filter(claimed_by=None).exclude(owner = owner)
 
 class RequestedTasks(generics.ListAPIView):
-	serializer_class = TaskSerializer
+	serializer_class = TaskDetailSerializer
 	def get_queryset(self):
 		username = self.kwargs['username']
 		owner = User.objects.get(username = username)
 		return Task.objects.filter(owner = owner)
 
 class ClaimedTasks(generics.ListAPIView):
-	serializer_class = TaskSerializer
+	serializer_class = TaskDetailSerializer
 	def get_queryset(self):
 		username = self.kwargs['username']
 		owner = User.objects.get(username = username)

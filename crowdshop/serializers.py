@@ -9,7 +9,7 @@ class TaskListSerializer(serializers.ModelSerializer):
 		model = Task
 		fields = ('owner', 'title', 'id', 'desc', 'reward', 'timeStamp', 'claimed_by')
 
-class TaskSerializer(serializers.ModelSerializer):
+class TaskDetailSerializer(serializers.ModelSerializer):
 	owner = serializers.RelatedField(many=False)
 	claimed_by = serializers.RelatedField(many=False)
 	class Meta:
