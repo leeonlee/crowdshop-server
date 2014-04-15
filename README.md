@@ -18,7 +18,7 @@ returns information of user with id of id
 	username
 	first_name
 	last_name
-	list of all tasks owned by user with owner omitted(see /tasks/id/ for format)
+	list (of all tasks owned by user with owner omitted(see /tasks/id/ for format))
 
 ## /tasks/ ##
 returns all tasks
