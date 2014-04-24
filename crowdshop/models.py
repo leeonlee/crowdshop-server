@@ -12,7 +12,6 @@ class CreateTaskForm(forms.Form):
 	desc = forms.CharField(label=('Description'), max_length=30)
 	threshold = forms.IntegerField(label=('Threshold'), min_value=0)
 
-# Create your models here.
 class Task(models.Model):
 	owner = models.ForeignKey(User, related_name="tasks")
 	title = models.CharField(max_length=255)
