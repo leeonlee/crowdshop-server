@@ -114,3 +114,13 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
+SERVER_URL = "http://crowdshop-server.herokuapp.com"
+APP_SECRET = os.environ.get("CROWDSHOP_SECRET")
+APP_ID = os.environ.get("CROWDSHOP_ID")
+VENMO_URL = "https://api.venmo.com/v1/oauth/access_token"
+
+if not isCodeship and not isHeroku:
+	try:
+		from local_settings import *
+	except:
+		pass
