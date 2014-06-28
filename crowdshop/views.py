@@ -18,7 +18,7 @@ from django.conf import settings
 from django.http import Http404
 import requests
 
-def index(request):
+def auth(request):
 	if request.method != "GET":
 		raise Http404
 
