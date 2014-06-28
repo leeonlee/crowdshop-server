@@ -31,6 +31,8 @@ def index(request):
 	}
 
 	response = requests.post(settings.VENMO_URL, data).json()
+	print settings.APP_ID
+	print settings.APP_SECRET
 	print response
 	token = json.dumps(response["access_token"])
 	return HttpResponse(token, content_type='application/json')
