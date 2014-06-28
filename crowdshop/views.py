@@ -14,6 +14,26 @@ from rest_framework import renderers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from django.conf import settings
+from django.http import Http404
+import requests
+
+def index(request):
+	if request.method != "GET":
+		raise Http404
+
+	code = request.GET.get("code", "")
+	if not code: raise Http404
+	data = {
+		"client_id" : settings.APP_ID,
+		"client_secret" : settings.APP_SECRET,
+		"code" : code,
+	}
+
+	response = requests.post(settings.VENMO_URL, data).json()
+	print response
+	token = json.dumps(response["access_token"])
+	return HttpResponse(token, content_type='application/json')
 
 @api_view(('GET',))
 def api_root(request, format=None):
