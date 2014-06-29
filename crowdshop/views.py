@@ -1,5 +1,5 @@
 import json
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
@@ -14,12 +14,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from django.conf import settings
+from crowdshop.forms import TaskForm
 import workflow
 import requests
 
 @api_view(["GET"])
 def auth(request):
-	code = request.GET.get("code", "")
+	code = request.GET["code"]
 
 	data = {
 		"client_id" : settings.APP_ID,
@@ -38,7 +39,28 @@ def auth(request):
 		person.save()
 
 	token = json.dumps(response)
-	return HttpResponse(token, content_type='application/json')
+	return HttpResponse(token, content_type="application/json")
+
+@api_view(["POST"])
+def create_task(request):
+	token = request.POST["token"]	
+	person = get_object_or_404(Person, token=token)
+	form = TaskForm(request.POST["data"])
+	if form.is_valid():
+		form.save(commit=False)
+		form.owner = person
+		form.state = State.objects.get(name="Open")
+		form.save()
+		result = json.dumps({
+			"success": True
+		})
+		return HttpResponse(result, content_type"application/json")
+	else:
+		result = json.dumps({
+			"success": False,
+			"errors": form.errors
+		})
+		return HttpResponse(result, content_type="application/json")
 
 @api_view(('GET',))
 def api_root(request, format=None):
@@ -66,7 +88,7 @@ class UserTasks(generics.ListAPIView):
 		owner = User.objects.get(username=username)
 		return Task.objects.filter(owner=owner)
 
-class TaskList(generics.ListCreateAPIView):
+class TaskList(generics.ListAPIView):
 	paginate_by = 10
 	def get_queryset(self):
 		queryset = Task.objects.all()
