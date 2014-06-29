@@ -52,13 +52,13 @@ def create_task(request):
 		form.state = State.objects.get(name="Open")
 		form.save()
 		result = json.dumps({
-			"success": True
+			"success": True,
 		})
-		return HttpResponse(result, content_type"application/json")
+		return HttpResponse(result, content_type="application/json")
 	else:
 		result = json.dumps({
 			"success": False,
-			"errors": form.errors
+			"errors": form.errors,
 		})
 		return HttpResponse(result, content_type="application/json")
 
