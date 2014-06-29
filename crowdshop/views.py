@@ -4,7 +4,7 @@ from django.template import RequestContext
 from django.http import HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
-from crowdshop.models import Task, Person
+from crowdshop.models import Task, Person, State
 from crowdshop.serializers import UserListSerializer, UserDetailSerializer, TaskDetailSerializer, TaskListSerializer
 from django.contrib.auth.models import User
 from rest_framework import generics
@@ -41,26 +41,37 @@ def auth(request):
 	token = json.dumps(response)
 	return HttpResponse(token, content_type="application/json")
 
-@api_view(["POST"])
+@csrf_exempt
 def create_task(request):
-	token = request.POST["token"]	
-	person = get_object_or_404(Person, token=token)
-	form = TaskForm(request.POST["data"])
-	if form.is_valid():
-		form.save(commit=False)
-		form.owner = person
-		form.state = State.objects.get(name="Open")
-		form.save()
-		result = json.dumps({
-			"success": True,
-		})
-		return HttpResponse(result, content_type="application/json")
-	else:
-		result = json.dumps({
-			"success": False,
-			"errors": form.errors,
-		})
-		return HttpResponse(result, content_type="application/json")
+    if request.method == "POST":
+        token = request.POST["token"]
+        person = get_object_or_404(Person, token=token)
+        title = request.POST.get("title", "")
+        desc = request.POST.get("desc", "")
+        reward = request.POST.get("reward", "")
+        threshold = request.POST.get("threshold", "")
+        print title, desc, reward, threshold
+        form = TaskForm({
+            "title":title,
+            "desc":desc,
+            "reward":reward,
+            "threshold":threshold,
+        })
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.owner = person
+            task.state = State.objects.get(name="Open")
+            task.save()
+            result = json.dumps({
+                    "success": True,
+            })
+            return HttpResponse(result, content_type="application/json")
+        else:
+            result = json.dumps({
+                    "success": False,
+                    "errors": form.errors,
+            })
+            return HttpResponse(result, content_type="application/json")
 
 @api_view(('GET',))
 def api_root(request, format=None):
