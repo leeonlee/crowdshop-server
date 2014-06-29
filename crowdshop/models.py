@@ -12,7 +12,7 @@ class Person(models.Model):
 class State(models.Model):
 	"""
 	States to represent the workflow of a task
-	Opened, claimed, paid, finished
+	Opened, claimed, paid, resolved
 	"""
 	name = models.CharField(max_length=255)
 	next_state = models.OneToOneField("self", related_name="previous_state", null=True)
