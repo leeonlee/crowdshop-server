@@ -31,7 +31,6 @@ class Task(models.Model):
 	threshold = models.IntegerField(default = 0)
 	actual_price = models.IntegerField(default = 0)
 	reward = models.IntegerField(default = 0)
-	complete = models.BooleanField(default = False)
 	timeStamp = models.DateTimeField(auto_now=True)
 	state = models.ForeignKey(State, related_name="tasks")
 
