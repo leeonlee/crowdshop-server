@@ -9,7 +9,21 @@ class Person(models.Model):
 	email = models.CharField(max_length=255, unique=True)
 	token = models.CharField(max_length = 50, unique=True)
 
+class State(models.Model):
+	"""
+	States to represent the workflow of a task
+	Opened, claimed, paid, finished
+	"""
+	name = models.CharField(max_length=255)
+	next_state = models.OneToOneField("self", related_name="previous_state", null=True)
+
+	def __unicode__(self):
+		return self.name
+
 class Task(models.Model):
+	"""
+	Tasks models to represent the needs of a user
+	"""
 	owner = models.ForeignKey(Person, related_name="tasks")
 	title = models.CharField(max_length=255)
 	desc = models.CharField(max_length=255)
@@ -19,6 +33,7 @@ class Task(models.Model):
 	reward = models.IntegerField(default = 0)
 	complete = models.BooleanField(default = False)
 	timeStamp = models.DateTimeField(auto_now=True)
+	state = models.ForeignKey(State, related_name="tasks")
 
 	def __unicode__(self):
 		return self.title
