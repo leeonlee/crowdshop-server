@@ -8,6 +8,9 @@ class Person(models.Model):
 	display_name = models.CharField(max_length=255)
 	email = models.CharField(max_length=255, unique=True)
 	token = models.CharField(max_length = 50, unique=True)
+        
+        def __unicode__(self):
+            return self.email
 
 class State(models.Model):
 	"""
