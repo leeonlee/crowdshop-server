@@ -43,35 +43,66 @@ def auth(request):
 
 @csrf_exempt
 def create_task(request):
-    if request.method == "POST":
-        token = request.POST["token"]
-        person = get_object_or_404(Person, token=token)
-        title = request.POST.get("title", "")
-        desc = request.POST.get("desc", "")
-        reward = request.POST.get("reward", "")
-        threshold = request.POST.get("threshold", "")
-        print title, desc, reward, threshold
-        form = TaskForm({
-            "title":title,
-            "desc":desc,
-            "reward":reward,
-            "threshold":threshold,
-        })
-        if form.is_valid():
-            task = form.save(commit=False)
-            task.owner = person
-            task.state = State.objects.get(name="Open")
-            task.save()
-            result = json.dumps({
-                    "success": True,
-            })
-            return HttpResponse(result, content_type="application/json")
-        else:
-            result = json.dumps({
-                    "success": False,
-                    "errors": form.errors,
-            })
-            return HttpResponse(result, content_type="application/json")
+	if request.method != "POST": raise Http404
+
+	token = request.POST["token"]
+	person = get_object_or_404(Person, token=token)
+	form = TaskForm({
+		"title":request.POST.get("title", ""),
+		"desc":request.POST.get("desc", ""),
+		"reward":request.POST.get("reward", ""),
+		"threshold":request.POST.get("threshold", ""),
+	})
+	if form.is_valid():
+		task = form.save(commit=False)
+		task.owner = person
+		task.state = State.objects.get(name="Open")
+		task.save()
+		result = json.dumps({
+			"success": True,
+		})
+		return HttpResponse(result, content_type="application/json")
+	else:
+		result = json.dumps({
+			"success": False,
+			"errors": form.errors,
+		})
+		return HttpResponse(result, content_type="application/json")
+
+@csrf_exempt
+def claim_task(request):
+	if request.method != "POST":
+		raise Http404
+
+	token = request.POST["token"]
+	task_pk = request.POST["task_pk"]
+	person = get_object_or_404(Person, token=token)
+	task = get_object_or_404(Task, pk=task_pk)
+
+	if person == task.owner:
+		result = json.dumps({
+			"success":False,
+			"message": "Cannot claim your own tasks"
+		})
+		return HttpResponse(result, content_type="application/json")
+
+	if task.state.name == "Open":
+		task.claimed_by = person
+		task.state = task.state.next_state
+		task.save()
+
+		result = json.dumps({
+			"success":True
+		})
+		return HttpResponse(result, content_type="application/json")
+
+	else:
+		result = json.dumps({
+			"success":False,
+			"message": "Task has already been claimed",
+		})
+		return HttpResponse(result, content_type="application/json")
+
 
 @api_view(('GET',))
 def api_root(request, format=None):
