@@ -1,11 +1,10 @@
 import json
-from django.shortcuts import render
-from django.shortcuts import render_to_response
+from django.shortcuts import render, render_to_response
 from django.template import RequestContext
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
-from crowdshop.models import Task
+from crowdshop.models import Task, Person
 from crowdshop.serializers import UserListSerializer, UserDetailSerializer, TaskDetailSerializer, TaskListSerializer
 from django.contrib.auth.models import User
 from rest_framework import generics
@@ -15,15 +14,12 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from django.conf import settings
-from django.http import Http404
 import requests
 
+@api_view(["GET"])
 def auth(request):
-	if request.method != "GET":
-		raise Http404
-
 	code = request.GET.get("code", "")
-	if not code: raise Http404
+
 	data = {
 		"client_id" : settings.APP_ID,
 		"client_secret" : settings.APP_SECRET,
@@ -31,6 +27,15 @@ def auth(request):
 	}
 
 	response = requests.post(settings.VENMO_URL, data).json()
+	if not response.has_key("error"):
+		email = response["user"]["email"]
+		display_name = response["user"]["display_name"]
+		token = response["access_token"]
+		person, created = Person.objects.get_or_create(email = email)
+		person.display_name = display_name
+		person.token = token
+		person.save()
+
 	token = json.dumps(response)
 	return HttpResponse(token, content_type='application/json')
 
@@ -182,60 +187,3 @@ def completeDeal(request):
 			}
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
-
-
-
-'''
-@api_view(('POST',))
-def claimTask(request):	
-	results = {'success':'invalid'}
-	print request.POST.get("message")
-	return Response({"message": "Hello world"})
-
-def venmoWebHook(request):
-	response = request.GET.get('venmo_challenge')
-	# results = {'success':'invalid', 'venmo_challenge': venmo}
-	# response = json.dumps(results)
-	return HttpResponse(response, content_type='text/plain')
-
-class UserViewSet(viewsets.ModelViewSet):
-	"""
-	API endpoint that allows users to be viewed or edited
-	"""
-	queryset = User.objects.all()
-	serializer_class = UserListSerializer
-
-class TaskViewSet(viewsets.ModelViewSet):
-	"""
-	API endpoint that allows tasks to be viewed or edited
-	"""
-	queryset = Task.objects.all()
-	serializer_class = TaskDetailSerializer
-
-class TaskList(generics.ListAPIView):
-	serializer_class = TaskDetailSerializer
-	def get_queryset(self):
-		return Task.objects.filter(claimed_by=None)
-
-class OpenTasks(generics.ListAPIView):
-	serializer_class = TaskDetailSerializer
-	def get_queryset(self):
-		username = self.kwargs['username']
-		owner = User.objects.get(username = username)
-		return Task.objects.filter(claimed_by=None).exclude(owner = owner)
-
-class RequestedTasks(generics.ListAPIView):
-	serializer_class = TaskDetailSerializer
-	def get_queryset(self):
-		username = self.kwargs['username']
-		owner = User.objects.get(username = username)
-		return Task.objects.filter(owner = owner)
-
-class ClaimedTasks(generics.ListAPIView):
-	serializer_class = TaskDetailSerializer
-	def get_queryset(self):
-		username = self.kwargs['username']
-		owner = User.objects.get(username = username)
-		return Task.objects.filter(claimed_by = owner)
-
-'''
