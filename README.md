@@ -8,10 +8,10 @@ All rest calls require authorization headers in the form of "Authorization: Toke
 Allows user to create a task
 
 	POST:
-	title - title of the task
-	desc - extra details to describe the item(s) needed
-	threshold - price threshold that the person is willing to pay
-	reward - amount of incentive for others to complete task
+	title - title of the task (required)
+	desc - extra details to describe the item(s) needed (required)
+	threshold - price threshold that the person is willing to pay (required)
+	reward - amount of incentive for others to complete task (required)
 
 	Successful requests will receive { "success": True}
 
