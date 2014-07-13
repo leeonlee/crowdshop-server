@@ -1,5 +1,4 @@
-from django.contrib.auth.models import User
-from crowdshop.models import Task
+from crowdshop.models import Task, MyUser
 from rest_framework import serializers
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -8,7 +7,7 @@ class UserListSerializer(serializers.ModelSerializer):
 	Also used to display brief information of a user
 	"""
 	class Meta:
-		model = User
+		model = MyUser
 		fields = ('id', 'username', 'first_name', 'last_name')
 
 
@@ -48,5 +47,5 @@ class UserDetailSerializer(serializers.ModelSerializer):
 	"""
 	tasks = UserTaskSerializer(many=True)
 	class Meta:
-		model = User
+		model = MyUser
 		fields = ('id', 'username', 'first_name', 'last_name', 'tasks')

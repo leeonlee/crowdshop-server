@@ -1,16 +1,8 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
-# Create your models here.
-class Person(models.Model):
-	"""
-	The person model will define a user of the application
-	"""
-	display_name = models.CharField(max_length=255)
-	email = models.CharField(max_length=255, unique=True)
-	token = models.CharField(max_length = 50, unique=True)
-        
-        def __unicode__(self):
-            return self.email
+class MyUser(AbstractUser):
+	venmo_id = models.CharField(max_length=30)
 
 class State(models.Model):
 	"""
@@ -27,10 +19,10 @@ class Task(models.Model):
 	"""
 	Tasks models to represent the needs of a user
 	"""
-	owner = models.ForeignKey(Person, related_name="tasks")
+	owner = models.ForeignKey(MyUser, related_name="tasks")
 	title = models.CharField(max_length=255)
 	desc = models.CharField(max_length=255)
-	claimed_by = models.ForeignKey(Person, related_name="claimed_by", blank=True, null=True)
+	claimed_by = models.ForeignKey(MyUser, related_name="claimed_by", blank=True, null=True)
 	threshold = models.IntegerField(default = 0)
 	actual_price = models.IntegerField(default = 0)
 	reward = models.IntegerField(default = 0)

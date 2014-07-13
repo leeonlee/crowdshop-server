@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'crowdshop',
     'rest_framework',
+    'rest_framework.authtoken',
     'south',
 )
 
@@ -118,6 +119,8 @@ SERVER_URL = "http://crowdshop-server.herokuapp.com"
 APP_SECRET = os.environ.get("CROWDSHOP_SECRET")
 APP_ID = os.environ.get("CROWDSHOP_ID")
 VENMO_URL = "https://api.venmo.com/v1/oauth/access_token"
+
+AUTH_USER_MODEL = "crowdshop.MyUser"
 
 if not isCodeship and not isHeroku:
 	try:
