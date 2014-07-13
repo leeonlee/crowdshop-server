@@ -61,6 +61,7 @@ def create_task(request):
         "reward":request.POST.get("reward", ""),
         "threshold":request.POST.get("threshold", ""),
     })
+
     if form.is_valid():
         task = form.save(commit=False)
         task.owner = request.user
