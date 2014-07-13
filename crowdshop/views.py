@@ -7,9 +7,8 @@ from rest_framework import viewsets
 from crowdshop.models import Task, State, MyUser
 from crowdshop.serializers import UserListSerializer, UserDetailSerializer, TaskDetailSerializer, TaskListSerializer
 from django.contrib.auth.models import User
-from rest_framework import generics
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import renderers
+from rest_framework import renderers, generics
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -19,29 +18,37 @@ import workflow
 import requests
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
 
 @api_view(["GET"])
 def auth(request):
-	code = request.GET["code"]
+    code = request.GET["code"]
 
-	data = {
-		"client_id" : settings.APP_ID,
-		"client_secret" : settings.APP_SECRET,
-		"code" : code,
-	}
+    data = {
+        "client_id" : settings.APP_ID,
+        "client_secret" : settings.APP_SECRET,
+        "code" : code,
+    }
 
-	response = requests.post(settings.VENMO_URL, data).json()
-	if not response.has_key("error"):
-		email = response["user"]["email"]
-		display_name = response["user"]["display_name"]
-		token = response["access_token"]
-		person, created = Person.objects.get_or_create(email = email)
-		person.display_name = display_name
-		person.token = token
-		person.save()
+    response = requests.post(settings.VENMO_URL, data).json()
+    if not response.has_key("error"):
+        email = response["user"]["email"]
+        venmo_id = response["user"]["id"]
+        first_name = response["user"]["first_name"]
+        last_name = response["user"]["last_name"]
+        username = response["user"]["username"]
 
-	token = json.dumps(response)
-	return HttpResponse(token, content_type="application/json")
+        user, created = MyUser.objects.get_or_create(venmo_id = venmo_id)
+        if created:
+            Token.objects.create(user=user)
+
+        user.username = username
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+
+        token = json.dumps(response)
+        return HttpResponse(token, content_type="application/json")
 
 @csrf_exempt
 def create_task(request):
