@@ -1,54 +1,18 @@
 Crowdshop Server [![Codeship Status for leeonlee/crowdshop-serv](https://www.codeship.io/projects/665e9fe0-9e9b-0131-49c8-6626d4860316/status?branch=master)](https://www.codeship.io/projects/18062)
 ================
 
-Below are the API calls available and the keys they return
+Below are the API calls available and their responses
+All rest calls require authorization headers in the form of "Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b" unless stated otherwise
 
-## /users/ ##
-returns list of all users  
+## /create_task ##
+Allows user to create a task
 
-	id
-	username
-	first_name
-	last_name
+	POST:
+	title - title of the task
+	desc - extra details to describe the item(s) needed
+	threshold - price threshold that the person is willing to pay
+	reward - amount of incentive for others to complete task
 
-## /users/id/ ##
-returns information of user with id of id
+	Successful requests will receive { "success": True}
 
-	id
-	username
-	first_name
-	last_name
-	tasks (all tasks owned by user with owner omitted(see /tasks/id/ for format))
-
-## /tasks/ ##
-returns all tasks
-
-	owner (dict of information returned by /users/)
-	title
-	id (of task)
-	desc
-	reward
-	timeStamp
-	claimed_by (dict of information returned by /users/, except for claimer)
-
-Filters available (they can be chained)
-- username - Returns all tasks owned by the user with the username specified
-- id - Returns all tasks owned by user with the id specified
-- exclude_user - returns all tasks not owned by user specified
-- exclude_id - returns all tasks not owned by id specified
-- claimed - if set to false, returns all non claimed tasks; if set to true, returns all claimed tasks
-- claimed_by_user - returns all tasks claimed by user with the username specified
-- claimed_by_id - returns all tasks claimed by user with the id specified
-
-## /tasks/id/ ##
-return information of task with id of id
-
-	owner (dict of information returned by /users/)
-	title
-	id (of task)
-	desc
-	reward
-	timeStamp
-	claimed_by (dict of information returned by /users/, except for claimer)
-
-
+	Unsuccessful requests will receive the form errors {"errors": {"threshold": ["This field is required."], "reward": ["This field is required."], "desc": ["This field is required."], "title": ["This field is required."]}, "success": false} 
