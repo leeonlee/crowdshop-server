@@ -5,7 +5,8 @@ from crowdshop import views
 
 
 urlpatterns = patterns('',
-	url(r'^$', views.api_root, name='api_root'),
+	url(r'^$', views.index, name='index'),
+	url(r'^api/$', views.api_root, name='api_root'),
 	url(r'^users/$', views.UserList.as_view(), name='userlist'),
 	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view(), name='userdetail'),
 	url(r'^tasks/$', views.TaskList.as_view(), name='tasklist'),

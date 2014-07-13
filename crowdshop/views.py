@@ -114,6 +114,9 @@ def claim_task(request):
 		})
 		return HttpResponse(result, content_type="application/json")
 
+@api_view(("GET",))
+def index(request):
+    return HttpResponse("hi")
 
 @api_view(('GET',))
 @authentication_classes((TokenAuthentication, ))
