@@ -39,16 +39,18 @@ def auth(request):
         username = response["user"]["username"]
 
         user, created = MyUser.objects.get_or_create(venmo_id = venmo_id)
-        if created:
-            Token.objects.create(user=user)
+        token = Token.objects.get_or_create(user=user)
 
         user.username = username
         user.first_name = first_name
         user.last_name = last_name
         user.email = email
+        user.save()
 
-        token = json.dumps(response)
-        return HttpResponse(token, content_type="application/json")
+        response["crowdshop_token"] = token.key
+
+        results = json.dumps(response)
+        return HttpResponse(results, content_type="application/json")
 
 @csrf_exempt
 def create_task(request):
