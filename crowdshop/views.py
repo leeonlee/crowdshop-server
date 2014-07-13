@@ -39,7 +39,7 @@ def auth(request):
         username = response["user"]["username"]
 
         user, created = MyUser.objects.get_or_create(venmo_id = venmo_id)
-        token = Token.objects.get_or_create(user=user)
+        token, created = Token.objects.get_or_create(user=user)
 
         user.username = username
         user.first_name = first_name
