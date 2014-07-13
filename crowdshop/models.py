@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class MyUser(AbstractUser):
-	venmo_id = models.CharField(max_length=30)
+	venmo_id = models.CharField(max_length=30, unique=True)
 
 class State(models.Model):
 	"""
