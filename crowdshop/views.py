@@ -6,7 +6,6 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
 from crowdshop.models import Task, State, MyUser
 from crowdshop.serializers import UserListSerializer, UserDetailSerializer, TaskDetailSerializer, TaskListSerializer
-from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import renderers, generics
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -52,42 +51,42 @@ def auth(request):
         results = json.dumps(response)
         return HttpResponse(results, content_type="application/json")
 
-@csrf_exempt
+@api_view(("POST",))
+@authentication_classes((TokenAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def create_task(request):
-	if request.method != "POST": raise Http404
+    form = TaskForm({
+        "title":request.POST.get("title", ""),
+        "desc":request.POST.get("desc", ""),
+        "reward":request.POST.get("reward", ""),
+        "threshold":request.POST.get("threshold", ""),
+    })
+    if form.is_valid():
+        task = form.save(commit=False)
+        task.owner = request.user
+        task.state = State.objects.get(name="Open")
+        task.save()
+        result = json.dumps({
+            "success": True,
+        })
+        return HttpResponse(result, content_type="application/json")
 
-	token = request.POST["token"]
-	person = get_object_or_404(Person, token=token)
-	form = TaskForm({
-		"title":request.POST.get("title", ""),
-		"desc":request.POST.get("desc", ""),
-		"reward":request.POST.get("reward", ""),
-		"threshold":request.POST.get("threshold", ""),
-	})
-	if form.is_valid():
-		task = form.save(commit=False)
-		task.owner = person
-		task.state = State.objects.get(name="Open")
-		task.save()
-		result = json.dumps({
-			"success": True,
-		})
-		return HttpResponse(result, content_type="application/json")
-	else:
-		result = json.dumps({
-			"success": False,
-			"errors": form.errors,
-		})
-		return HttpResponse(result, content_type="application/json")
+    else:
+        result = json.dumps({
+        "success": False,
+        "errors": form.errors,
+    })
+    return HttpResponse(result, content_type="application/json")
 
-@csrf_exempt
+@api_view(("POST",))
+@authentication_classes((TokenAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def claim_task(request):
 	if request.method != "POST":
 		raise Http404
 
-	token = request.POST["token"]
 	task_pk = request.POST["task_pk"]
-	person = get_object_or_404(Person, token=token)
+        print request.user
 	task = get_object_or_404(Task, pk=task_pk)
 
 	if person == task.owner:
