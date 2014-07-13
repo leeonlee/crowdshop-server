@@ -13,6 +13,6 @@ Allows user to create a task
 	threshold - price threshold that the person is willing to pay (required)
 	reward - amount of incentive for others to complete task (required)
 
-	Successful requests will receive { "success": True}
+	Successful requests will receive HTTP_201_CREATED and no data
 
-	Unsuccessful requests will receive the form errors {"errors": {"threshold": ["This field is required."], "reward": ["This field is required."], "desc": ["This field is required."], "title": ["This field is required."]}, "success": false} 
+	Unsuccessful requests will receive HTTP_400_BAD_REQUEST along with the form errors {"errors": {"threshold": ["This field is required."], "reward": ["This field is required."], "desc": ["This field is required."], "title": ["This field is required."]}}

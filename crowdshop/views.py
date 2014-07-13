@@ -18,6 +18,8 @@ import requests
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
+from rest_framework import status
+from rest_framework.response import Response
 
 @api_view(["GET"])
 def auth(request):
@@ -70,14 +72,14 @@ def create_task(request):
         result = json.dumps({
             "success": True,
         })
-        return HttpResponse(result, content_type="application/json")
+        return Response({}, status = status.HTTP_201_CREATED)
 
     else:
         result = json.dumps({
         "success": False,
         "errors": form.errors,
     })
-    return HttpResponse(result, content_type="application/json")
+    return Response({"errors":form.errors}, status = status.HTTP_400_BAD_REQUEST)
 
 @api_view(("POST",))
 @authentication_classes((TokenAuthentication, ))
