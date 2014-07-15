@@ -85,36 +85,25 @@ def create_task(request):
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((IsAuthenticated,))
 def claim_task(request):
-	if request.method != "POST":
-		raise Http404
+    user = request.user
+    task_pk = request.POST.get("task_pk", None)
+    if not task_pk:
+        return Response({"errors": "Must give a task id to claim"}, status = status.HTTP_400_BAD_REQUEST)
 
-	task_pk = request.POST["task_pk"]
-        print request.user
-	task = get_object_or_404(Task, pk=task_pk)
+    task = get_object_or_404(Task, pk=task_pk)
 
-	if person == task.owner:
-		result = json.dumps({
-			"success":False,
-			"message": "Cannot claim your own tasks"
-		})
-		return HttpResponse(result, content_type="application/json")
+    if user == task.owner:
+        return Response({"errors": "Cannot claim your own tasks"}, status = status.HTTP_403_FORBIDDEN)
 
-	if task.state.name == "Open":
-		task.claimed_by = person
-		task.state = task.state.next_state
-		task.save()
+    if task.state.name == "Open":
+        task.claimed_by = user
+        task.state = task.state.next_state
+        task.save()
 
-		result = json.dumps({
-			"success":True
-		})
-		return HttpResponse(result, content_type="application/json")
+        return HttpResponse({}, status = status.HTTP_200_OK)
 
-	else:
-		result = json.dumps({
-			"success":False,
-			"message": "Task has already been claimed",
-		})
-		return HttpResponse(result, content_type="application/json")
+    else:
+        return Response({"errors": "Task already claimed"}, status = status.HTTP_403_FORBIDDEN)
 
 @api_view(("GET",))
 def index(request):
