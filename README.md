@@ -16,3 +16,32 @@ Allows user to create a task
 	Successful requests will receive HTTP_201_CREATED and no data
 
 	Unsuccessful requests will receive HTTP_400_BAD_REQUEST along with the form errors {"errors": {"threshold": ["This field is required."], "reward": ["This field is required."], "desc": ["This field is required."], "title": ["This field is required."]}}
+
+## /claim_task ##
+Allows user to claim a task
+
+	POST:
+	task_id - id of the task to be claimed
+
+	Successful requests receive HTTP_200_OK and no data
+
+	Unsuccessful requests - will get a status of 400 and a key of "errors" which will describe the error
+	Possible errors:
+	Form errors
+	Cannot claim your own task
+	Task already claimed
+
+## /pay_task ##
+Allows user to report the amount they paid for a task
+
+	POST:
+	task_id - id of the task to be claimed
+	amount - amount paid
+
+	Successful requests receive HTTP_200_OK and no data
+
+	Unsuccessful requests - will get a status of 400 and a key of "errors" which will describe the error
+	Possible errors:
+	Form errors
+	Task cannot be paid for right now (task not in the correct state in workflow)
+	User did not claim the task
