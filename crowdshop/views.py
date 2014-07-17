@@ -12,7 +12,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from django.conf import settings
-from crowdshop.forms import TaskForm
+from crowdshop.forms import TaskForm, PaymentForm
 import workflow
 import requests
 from rest_framework.permissions import IsAuthenticated
@@ -57,12 +57,7 @@ def auth(request):
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((IsAuthenticated,))
 def create_task(request):
-    form = TaskForm({
-        "title":request.POST.get("title", ""),
-        "desc":request.POST.get("desc", ""),
-        "reward":request.POST.get("reward", ""),
-        "threshold":request.POST.get("threshold", ""),
-    })
+    form = TaskForm(request.POST)
 
     if form.is_valid():
         task = form.save(commit=False)
@@ -75,18 +70,14 @@ def create_task(request):
         return Response({}, status = status.HTTP_201_CREATED)
 
     else:
-        result = json.dumps({
-        "success": False,
-        "errors": form.errors,
-    })
-    return Response({"errors":form.errors}, status = status.HTTP_400_BAD_REQUEST)
+        return Response(form.errors, status = status.HTTP_400_BAD_REQUEST)
 
 @api_view(("POST",))
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((IsAuthenticated,))
 def claim_task(request):
     user = request.user
-    task_pk = request.POST.get("task_pk", None)
+    task_pk = request.POST.get("task_id", None)
     if not task_pk:
         return Response({"errors": "Must give a task id to claim"}, status = status.HTTP_400_BAD_REQUEST)
 
@@ -100,10 +91,34 @@ def claim_task(request):
         task.state = task.state.next_state
         task.save()
 
-        return HttpResponse({}, status = status.HTTP_200_OK)
+        return Response({}, status = status.HTTP_200_OK)
 
     else:
         return Response({"errors": "Task already claimed"}, status = status.HTTP_403_FORBIDDEN)
+
+@api_view(("POST",))
+@authentication_classes((TokenAuthentication, ))
+@permission_classes((IsAuthenticated,))
+def pay_task(request):
+    user = request.user
+    form = PaymentForm(request.POST)
+
+    if form.is_valid():
+        task = Task.objects.get(pk = form.cleaned_data["task_id"])
+        amount = form.cleaned_data["amount"]
+        if task.state.name != "Claimed":
+            return Response({"errors": "This task cannot be paid for right now."}, status = status.HTTP_400_BAD_REQUEST)
+
+        if task.claimed_by != user:
+            return Response({"errors": "You did not claim this task."}, status = status.HTTP_400_BAD_REQUEST)
+
+        task.actual_price = amount
+        task.state = task.state.next_state
+        task.save()
+        return Response({}, status = status.HTTP_200_OK)
+
+    else:
+        return Response(form.errors, status = status.HTTP_400_BAD_REQUEST)
 
 @api_view(("GET",))
 def index(request):
