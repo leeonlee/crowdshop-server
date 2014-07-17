@@ -7,17 +7,24 @@ class TaskForm(ModelForm):
 		model = Task
 		fields = ["title", "desc", "threshold", "reward",]
 
+class ClaimForm(forms.Form):
+	task_id = forms.IntegerField()
+
+	def clean_task_id(self):
+		task_id = self.cleaned_data["task_id"]
+		if not Task.objects.filter(pk=task_id).exists():
+			raise forms.ValidationError("That id doesn't belong to any task.")
+		return task_id
+
 class PaymentForm(forms.Form):
 	amount = forms.IntegerField()
 	task_id = forms.IntegerField()
 
 	def clean_task_id(self):
 		task_id = self.cleaned_data["task_id"]
-		if Task.objects.filter(pk=task_id).exists():
-			return task_id
-		else:
+		if not Task.objects.filter(pk=task_id).exists():
 			raise forms.ValidationError("That id doesn't belong to any task.")
-			return task_id
+		return task_id
 
 	def clean_amount(self):
 		amount = self.cleaned_data["amount"]
