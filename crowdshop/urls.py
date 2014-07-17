@@ -14,5 +14,6 @@ urlpatterns = patterns('',
 	url(r'^claim/$', views.claimTask, name='claimtask'),
 	url(r'^create_task', views.create_task, name="create_task"),
 	url(r'^claim_task', views.claim_task, name="claim_task"),
+	url(r'^pay_task', views.pay_task, name="pay_task"),
 	url(r'^auth', views.auth, name='auth'),
 )
