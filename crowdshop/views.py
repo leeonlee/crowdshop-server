@@ -12,7 +12,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from django.conf import settings
-from crowdshop.forms import TaskForm, PaymentForm
+from crowdshop.forms import TaskForm, PaymentForm, ClaimForm
 import workflow
 import requests
 from rest_framework.permissions import IsAuthenticated
@@ -76,25 +76,26 @@ def create_task(request):
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((IsAuthenticated,))
 def claim_task(request):
-    user = request.user
-    task_pk = request.POST.get("task_id", None)
-    if not task_pk:
-        return Response({"errors": "Must give a task id to claim"}, status = status.HTTP_400_BAD_REQUEST)
+    form = ClaimForm(request.POST)
+    if form.is_valid():
+        user = request.user
+        task = Task.objects.get(form.cleaned_data["task_id"])
 
-    task = get_object_or_404(Task, pk=task_pk)
+        if user == task.owner:
+            return Response({"errors": "Cannot claim your own tasks"}, status = status.HTTP_400_BAD_REQUEST)
 
-    if user == task.owner:
-        return Response({"errors": "Cannot claim your own tasks"}, status = status.HTTP_403_FORBIDDEN)
+        if task.state.name == "Open":
+            task.claimed_by = user
+            task.state = task.state.next_state
+            task.save()
 
-    if task.state.name == "Open":
-        task.claimed_by = user
-        task.state = task.state.next_state
-        task.save()
+            return Response({}, status = status.HTTP_200_OK)
 
-        return Response({}, status = status.HTTP_200_OK)
-
+        else:
+            return Response({"errors": "Task already claimed"}, status = status.HTTP_400_BAD_REQUEST)
     else:
-        return Response({"errors": "Task already claimed"}, status = status.HTTP_403_FORBIDDEN)
+        return Response(form.errors, status = status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(("POST",))
 @authentication_classes((TokenAuthentication, ))
