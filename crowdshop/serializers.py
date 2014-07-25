@@ -8,7 +8,7 @@ class UserListSerializer(serializers.ModelSerializer):
 	"""
 	class Meta:
 		model = MyUser
-		fields = ('id', 'username', 'first_name', 'last_name')
+		fields = ('venmo_id', 'username', 'first_name', 'last_name')
 
 
 class TaskDetailSerializer(serializers.ModelSerializer):
@@ -25,11 +25,10 @@ class TaskListSerializer(serializers.ModelSerializer):
 	"""
 	Serializer for displaying all tasks
 	"""
-	owner = UserListSerializer(many=False)
-	claimed_by = UserListSerializer(many=False)
+	owner = serializers.SlugRelatedField(many=False, slug_field="venmo_id")
 	class Meta:
 		model = Task
-		fields = ('owner', 'title', 'id', 'desc', 'reward', 'timeStamp', 'claimed_by')
+		fields = ('owner', 'title', 'id', 'desc', 'reward', 'timeStamp', "threshold", )
 
 class UserTaskSerializer(serializers.ModelSerializer):
 	"""

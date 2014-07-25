@@ -56,25 +56,6 @@ def auth(request):
 @api_view(("POST",))
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((IsAuthenticated,))
-def create_task(request):
-    form = TaskForm(request.POST)
-
-    if form.is_valid():
-        task = form.save(commit=False)
-        task.owner = request.user
-        task.state = State.objects.get(name="Open")
-        task.save()
-        result = json.dumps({
-            "success": True,
-        })
-        return Response({}, status = status.HTTP_201_CREATED)
-
-    else:
-        return Response(form.errors, status = status.HTTP_400_BAD_REQUEST)
-
-@api_view(("POST",))
-@authentication_classes((TokenAuthentication, ))
-@permission_classes((IsAuthenticated,))
 def claim_task(request):
     form = ClaimForm(request.POST)
     if form.is_valid():
@@ -126,14 +107,12 @@ def index(request):
     return HttpResponse("hi")
 
 @api_view(('GET',))
-@authentication_classes((TokenAuthentication, ))
-@permission_classes((IsAuthenticated,))
 def api_root(request, format=None):
         print request.user
         print request.auth
 	return Response({
 		'users': reverse('userlist', request=request, format=format),
-		'tasks': reverse('tasklist', request=request, format=format),
+		'tasks': reverse('tasks', request=request, format=format),
 	})
 
 class UserList(generics.ListCreateAPIView):
@@ -155,51 +134,79 @@ class UserTasks(generics.ListAPIView):
 		owner = User.objects.get(username=username)
 		return Task.objects.filter(owner=owner)
 
-class TaskList(generics.ListAPIView):
-	paginate_by = 10
-	def get_queryset(self):
-		queryset = Task.objects.all()
-		id_filter = self.request.QUERY_PARAMS.get('id', None)
-		username = self.request.QUERY_PARAMS.get('username', None)
-		exclude_user = self.request.QUERY_PARAMS.get('exclude_user', None)
-		exclude_id = self.request.QUERY_PARAMS.get('exclude_id', None)
-		claimed = self.request.QUERY_PARAMS.get('claimed', None)
-		claimed_by_user = self.request.QUERY_PARAMS.get('claimed_by_user', None)
-		claimed_by_id = self.request.QUERY_PARAMS.get('claimed_by_id', None)
-		
-		if id_filter is not None:
-			queryset = queryset.filter(owner = User.objects.get(id=id_filter))
+#@authentication_classes((TokenAuthentication, ))
+#@permission_classes((IsAuthenticated,))
+class Tasks(generics.ListCreateAPIView):
+    paginate_by = 10
 
-		if username is not None:
-			queryset = queryset.filter(owner = User.objects.get(username=username))
+    def get_queryset(self):
+        queryset = Task.objects.all()
+        id_filter = self.request.QUERY_PARAMS.get('id', None)
+        username = self.request.QUERY_PARAMS.get('username', None)
+        exclude_user = self.request.QUERY_PARAMS.get('exclude_user', None)
+        exclude_id = self.request.QUERY_PARAMS.get('exclude_id', None)
+        claimed = self.request.QUERY_PARAMS.get('claimed', None)
+        claimed_by_user = self.request.QUERY_PARAMS.get('claimed_by_user', None)
+        claimed_by_id = self.request.QUERY_PARAMS.get('claimed_by_id', None)
 
-		if exclude_user is not None:
-			queryset = queryset.exclude(owner = User.objects.get(username=exclude_user))
+        if id_filter is not None:
+            queryset = queryset.filter(owner = User.objects.get(id=id_filter))
 
-		if exclude_id is not None:
-			queryset = queryset.exclude(owner = User.objects.get(id=exclude_id))
+        if username is not None:
+            queryset = queryset.filter(owner = User.objects.get(username=username))
 
-		if claimed is not None:
-			if claimed == "false":
-				queryset = queryset.filter(claimed_by_user = None)
-			elif claimed == "true":
-				queryset = queryset.exclude(claimed_by_user = None)
+        if exclude_user is not None:
+            queryset = queryset.exclude(owner = User.objects.get(username=exclude_user))
 
-		if claimed_by_user is not None:
-			queryset = queryset.filter(claimed_by = User.objects.get(username=claimed_by_user))
+        if exclude_id is not None:
+            queryset = queryset.exclude(owner = User.objects.get(id=exclude_id))
 
-		if claimed_by_id is not None:
-			queryset = queryset.filter(claimed_by = User.objects.get(id=claimed_by_id))
+        if claimed is not None:
+            if claimed == "false":
+                queryset = queryset.filter(claimed_by_user = None)
+            elif claimed == "true":
+                queryset = queryset.exclude(claimed_by_user = None)
 
-		return queryset
+        if claimed_by_user is not None:
+            queryset = queryset.filter(claimed_by = User.objects.get(username=claimed_by_user))
 
-	serializer_class = TaskListSerializer
+        if claimed_by_id is not None:
+            queryset = queryset.filter(claimed_by = User.objects.get(id=claimed_by_id))
 
-class TaskDetail(generics.RetrieveAPIView):
-	paginate_by = 10
-	queryset = Task.objects.all()
-	serializer_class = TaskDetailSerializer
+        return queryset
 
+    serializer_class = TaskListSerializer
+
+#@authentication_classes((TokenAuthentication, ))
+#@permission_classes((IsAuthenticated,))
+class TaskDetail(viewsets.ViewSet):
+    paginate_by = 10
+    serializer_class = TaskDetailSerializer
+
+    def retrieve(self, request, pk=None):
+        task = get_object_or_404(Task, pk=pk)
+        serializer = TaskDetailSerializer(task)
+        return Response(serializer.data)
+
+    def patch(self, request, pk=None):
+        task = get_object_or_404(Task, pk=pk)
+        user = request.user
+        data = request.DATA.copy()
+        data["user"] = request.user.pk
+
+        if task.state.name == "Open":
+            form = ClaimForm(data)
+            if form.is_valid():
+                task.claimed_by = user
+                task.state = task.state.next_state
+                task.save()
+            else:
+                return Response(form.errors)
+
+        serializer = TaskDetailSerializer(task)
+        return Response(serializer.data)
+
+'''
 @csrf_exempt
 def createTask(request):
 	results = {'success':'invalid'}
@@ -277,3 +284,4 @@ def completeDeal(request):
 			}
 	response = json.dumps(results)
 	return HttpResponse(response, content_type='application/json')
+'''
