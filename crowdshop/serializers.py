@@ -1,7 +1,7 @@
 from crowdshop.models import Task, MyUser
 from rest_framework import serializers
 
-class UserListSerializer(serializers.ModelSerializer):
+class UserDetailSerializer(serializers.ModelSerializer):
 	"""
 	Serializer for displaying all users
 	Also used to display brief information of a user
@@ -15,8 +15,8 @@ class TaskDetailSerializer(serializers.ModelSerializer):
 	"""
 	Serializer for displaying details of a task
 	"""
-	owner = UserListSerializer(many=False)
-	claimed_by = UserListSerializer(many=False)
+	owner = UserDetailSerializer(many=False)
+	claimed_by = UserDetailSerializer(many=False)
 	class Meta:
 		model = Task
 		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'timeStamp', 'claimed_by')
@@ -25,17 +25,19 @@ class TaskListSerializer(serializers.ModelSerializer):
 	"""
 	Serializer for displaying all tasks
 	"""
-	owner = serializers.SlugRelatedField(many=False, slug_field="venmo_id")
+	owner = UserDetailSerializer(many=False)
 	class Meta:
 		model = Task
-		fields = ('owner', 'title', 'id', 'desc', 'reward', 'timeStamp', "threshold", )
+		fields = ("owner", 'title', 'id', 'desc', 'reward', 'timeStamp', "threshold", "state")
+                read_only_fields = ("state",)
+                depth = 1
 
 class UserTaskSerializer(serializers.ModelSerializer):
 	"""
 	Serializer for displaying all of a user's tasks
 	Used to elminate redundancy in showing the owner's information
 	"""
-	claimed_by = UserListSerializer(many=False)
+	claimed_by = UserDetailSerializer(many=False)
 	class Meta:
 		model = Task
 		fields = ('title', 'id', 'desc', 'reward', 'timeStamp', 'claimed_by')
