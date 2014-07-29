@@ -5,7 +5,7 @@ from django.http import HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
 from crowdshop.models import Task, State, MyUser
-from crowdshop.serializers import UserListSerializer, UserDetailSerializer, TaskDetailSerializer, TaskListSerializer
+from crowdshop.serializers import UserDetailSerializer, UserDetailSerializer, TaskDetailSerializer, TaskListSerializer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import renderers, generics
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -118,7 +118,7 @@ def api_root(request, format=None):
 class UserList(generics.ListCreateAPIView):
 	queryset = MyUser.objects.all()
 	paginate_by = 10
-	serializer_class = UserListSerializer
+	serializer_class = UserDetailSerializer
 
 class UserDetail(generics.RetrieveAPIView):
 	paginate_by = 10
@@ -136,8 +136,49 @@ class UserTasks(generics.ListAPIView):
 
 #@authentication_classes((TokenAuthentication, ))
 #@permission_classes((IsAuthenticated,))
+class TaskViewSet(viewsets.ModelViewSet):
+    queryset = Task.objects.all()
+    serializer_class = TaskListSerializer
+
+    def create(self, request):
+        form = TaskForm(request.DATA)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.state = State.objects.get(name="Open")
+            task.save()
+            serializer = TaskDetailSerializer(task)
+            return Response(serializer.data, status = status.HTTP_201_CREATED)
+        else:
+            return Response(form.errors, status = status.HTTP_400_BAD_REQUEST)
+    
+    def update(self, request, pk=None):
+        task = self.get_object()
+        user = request.user
+        token_id = user.venmo_id
+        data = request.DATA.copy()
+        data["token_venmo_id"] = token_id
+        data["owner_venmo_id"] = task.owner.venmo_id
+
+        if task.state.name == "Open":
+            form = ClaimForm(data)
+            if form.is_valid():
+                task.claimed_by = user
+                task.state = task.state.next_state
+                task.save()
+                serializer = TaskDetailSerializer(task)
+                return Response(serializer.data)
+            else:
+                return Response(form.errors, status = status.HTTP_400_BAD_REQUEST)
+
+'''
 class Tasks(generics.ListCreateAPIView):
     paginate_by = 10
+    def create(request, *args, **kwargs):
+        print request
+        print kwargs
+        print args[0].__dict__
+        print args[0].POST
+        return Http404
 
     def get_queryset(self):
         queryset = Task.objects.all()
@@ -176,35 +217,7 @@ class Tasks(generics.ListCreateAPIView):
         return queryset
 
     serializer_class = TaskListSerializer
-
-#@authentication_classes((TokenAuthentication, ))
-#@permission_classes((IsAuthenticated,))
-class TaskDetail(viewsets.ViewSet):
-    paginate_by = 10
-    serializer_class = TaskDetailSerializer
-
-    def retrieve(self, request, pk=None):
-        task = get_object_or_404(Task, pk=pk)
-        serializer = TaskDetailSerializer(task)
-        return Response(serializer.data)
-
-    def patch(self, request, pk=None):
-        task = get_object_or_404(Task, pk=pk)
-        user = request.user
-        data = request.DATA.copy()
-        data["user"] = request.user.pk
-
-        if task.state.name == "Open":
-            form = ClaimForm(data)
-            if form.is_valid():
-                task.claimed_by = user
-                task.state = task.state.next_state
-                task.save()
-            else:
-                return Response(form.errors)
-
-        serializer = TaskDetailSerializer(task)
-        return Response(serializer.data)
+'''
 
 '''
 @csrf_exempt
