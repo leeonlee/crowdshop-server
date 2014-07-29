@@ -3,26 +3,32 @@ from crowdshop.models import Task, MyUser
 from django import forms
 
 class TaskForm(ModelForm):
-	class Meta:
-		model = Task
-		fields = ["title", "desc", "threshold", "reward",]
+    owner = forms.ModelChoiceField(queryset=MyUser.objects.all(), to_field_name="venmo_id")
+    class Meta:
+        model = Task
+        fields = ["owner", "title", "desc", "threshold", "reward",]
 
 class ClaimForm(forms.Form):
-	venmo_id = forms.CharField()
-	user = forms.ModelChoiceField(queryset = MyUser.objects.all())
+    venmo_id = forms.CharField()
+    token_venmo_id = forms.CharField()
+    owner_venmo_id = forms.CharField()
 
-	def clean(self):
-		cleaned_data = super(ClaimForm, self).clean()
-		venmo_id = cleaned_data.get("venmo_id", None)
-		user = cleaned_data.get("user", None)
+    def clean(self):
+        cleaned_data = super(ClaimForm, self).clean()
+        venmo_id = cleaned_data.get("venmo_id", None)
+        token_id = cleaned_data.get("token_venmo_id", None)
+        owner_id = cleaned_data.get("owner_venmo_id", None)
 
-		if not venmo_id or not user:
-			return cleaned_data
+        if not venmo_id or not token_id:
+            return cleaned_data
 
-		if venmo_id != user.venmo_id:
-			self._errors["venmo_id"] = self.error_class(["Venmo ID does not match token user's Venmo ID"])
+        if venmo_id != token_id:
+            self._errors["venmo_id"] = self.error_class(["Venmo ID does not match token user's Venmo ID."])
 
-		return cleaned_data
+        if venmo_id == owner_id:
+            self._errors["venmo_id"] = self.error_class(["Cannot claim your own tasks."])
+
+        return cleaned_data
 
 class PaymentForm(forms.Form):
 	amount = forms.IntegerField()
