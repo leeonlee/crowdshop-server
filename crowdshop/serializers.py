@@ -10,16 +10,16 @@ class UserDetailSerializer(serializers.ModelSerializer):
 		model = MyUser
 		fields = ('venmo_id', 'username', 'first_name', 'last_name')
 
-
 class TaskDetailSerializer(serializers.ModelSerializer):
-	"""
-	Serializer for displaying details of a task
-	"""
-	owner = UserDetailSerializer(many=False)
-	claimed_by = UserDetailSerializer(many=False)
-	class Meta:
-		model = Task
-		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'timeStamp', 'claimed_by', "state")
+    """
+    Serializer for displaying details of a task
+    """
+    owner = UserDetailSerializer(many=False)
+    claimed_by = UserDetailSerializer(many=False)
+    state = serializers.SlugRelatedField(many=False, slug_field="name")
+    class Meta:
+        model = Task
+        fields = ('owner', 'title', 'id', 'desc', 'threshold', 'paid', 'reward', 'timeStamp', 'claimed_by', "state")
         depth = 1
 
 class UserTaskSerializer(serializers.ModelSerializer):
