@@ -120,6 +120,10 @@ APP_SECRET = os.environ.get("CROWDSHOP_SECRET")
 APP_ID = os.environ.get("CROWDSHOP_ID")
 VENMO_URL = "https://api.venmo.com/v1/oauth/access_token"
 
+REST_FRAMEWORK = {
+    "PAGINATE_BY":20,
+        }
+
 AUTH_USER_MODEL = "crowdshop.MyUser"
 
 if not isCodeship and not isHeroku:
