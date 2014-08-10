@@ -12,7 +12,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from django.conf import settings
-from crowdshop.forms import TaskForm, PayForm, ClaimForm
+from crowdshop.forms import TaskForm, PayForm, ClaimForm, ResolveForm
 import workflow
 import requests
 from rest_framework.permissions import IsAuthenticated
@@ -53,55 +53,6 @@ def auth(request):
         results = json.dumps(response)
         return HttpResponse(results, content_type="application/json")
 
-@api_view(("POST",))
-@authentication_classes((TokenAuthentication, ))
-@permission_classes((IsAuthenticated,))
-def claim_task(request):
-    form = ClaimForm(request.POST)
-    if form.is_valid():
-        user = request.user
-        task = Task.objects.get(form.cleaned_data["task_id"])
-
-        if user == task.owner:
-            return Response({"errors": "Cannot claim your own tasks"}, status = status.HTTP_400_BAD_REQUEST)
-
-        if task.state.name == "Open":
-            task.claimed_by = user
-            task.state = task.state.next_state
-            task.save()
-
-            return Response({}, status = status.HTTP_200_OK)
-
-        else:
-            return Response({"errors": "Task already claimed"}, status = status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response(form.errors, status = status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(("POST",))
-@authentication_classes((TokenAuthentication, ))
-@permission_classes((IsAuthenticated,))
-def pay_task(request):
-    user = request.user
-    form = PaymentForm(request.POST)
-
-    if form.is_valid():
-        task = Task.objects.get(pk = form.cleaned_data["task_id"])
-        amount = form.cleaned_data["amount"]
-        if task.state.name != "Claimed":
-            return Response({"errors": "This task cannot be paid for right now."}, status = status.HTTP_400_BAD_REQUEST)
-
-        if task.claimed_by != user:
-            return Response({"errors": "You did not claim this task."}, status = status.HTTP_400_BAD_REQUEST)
-
-        task.actual_price = amount
-        task.state = task.state.next_state
-        task.save()
-        return Response({}, status = status.HTTP_200_OK)
-
-    else:
-        return Response(form.errors, status = status.HTTP_400_BAD_REQUEST)
-
 @api_view(("GET",))
 def index(request):
     return HttpResponse("hi")
@@ -136,13 +87,15 @@ class UserTasks(generics.ListAPIView):
 		return Task.objects.filter(owner=owner)
 """
 
-#@authentication_classes((TokenAuthentication, ))
-#@permission_classes((IsAuthenticated,))
+@authentication_classes((TokenAuthentication, ))
+@permission_classes((IsAuthenticated,))
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskDetailSerializer
 
     def create(self, request):
+        request.DATA["token_id"] = request.user.venmo_id
+        print request.DATA
         form = TaskForm(request.DATA)
         if form.is_valid():
             task = form.save(commit=False)
@@ -159,7 +112,6 @@ class TaskViewSet(viewsets.ModelViewSet):
         token_id = user.venmo_id
         data = request.DATA.copy()
         data["token_venmo_id"] = token_id
-        data["owner_venmo_id"] = task.owner.venmo_id
         data["task"] = pk
 
         if task.state.name == "Open":
@@ -176,7 +128,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         elif task.state.name == "Claimed":
             form = PayForm(data)
             if form.is_valid():
-                task.actual_price = form.cleaned_data["amount"]
+                task.paid = form.cleaned_data["paid"]
                 task.state = task.state.next_state
                 task.save()
                 serializer = TaskDetailSerializer(task)
@@ -184,51 +136,14 @@ class TaskViewSet(viewsets.ModelViewSet):
             else:
                 return Response(form.errors, status = status.HTTP_400_BAD_REQUEST)
 
-'''
-class Tasks(generics.ListCreateAPIView):
-    paginate_by = 10
-    def create(request, *args, **kwargs):
-        print request
-        print kwargs
-        print args[0].__dict__
-        print args[0].POST
-        return Http404
-
-    def get_queryset(self):
-        queryset = Task.objects.all()
-        id_filter = self.request.QUERY_PARAMS.get('id', None)
-        username = self.request.QUERY_PARAMS.get('username', None)
-        exclude_user = self.request.QUERY_PARAMS.get('exclude_user', None)
-        exclude_id = self.request.QUERY_PARAMS.get('exclude_id', None)
-        claimed = self.request.QUERY_PARAMS.get('claimed', None)
-        claimed_by_user = self.request.QUERY_PARAMS.get('claimed_by_user', None)
-        claimed_by_id = self.request.QUERY_PARAMS.get('claimed_by_id', None)
-
-        if id_filter is not None:
-            queryset = queryset.filter(owner = User.objects.get(id=id_filter))
-
-        if username is not None:
-            queryset = queryset.filter(owner = User.objects.get(username=username))
-
-        if exclude_user is not None:
-            queryset = queryset.exclude(owner = User.objects.get(username=exclude_user))
-
-        if exclude_id is not None:
-            queryset = queryset.exclude(owner = User.objects.get(id=exclude_id))
-
-        if claimed is not None:
-            if claimed == "false":
-                queryset = queryset.filter(claimed_by_user = None)
-            elif claimed == "true":
-                queryset = queryset.exclude(claimed_by_user = None)
-
-        if claimed_by_user is not None:
-            queryset = queryset.filter(claimed_by = User.objects.get(username=claimed_by_user))
-
-        if claimed_by_id is not None:
-            queryset = queryset.filter(claimed_by = User.objects.get(id=claimed_by_id))
-
-        return queryset
-
-    serializer_class = TaskListSerializer
-'''
+        elif task.state.name == "Paid":
+            form = ResolveForm(data)
+            if form.is_valid():
+                task.state = task.state.next_state
+                task.save()
+                serializer = TaskDetailSerializer(task)
+                return Response(serializer.data)
+            else:
+                return Response(form.errors, status = status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status = status.HTTP_400_BAD_REQUEST)
