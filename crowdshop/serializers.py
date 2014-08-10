@@ -22,17 +22,6 @@ class TaskDetailSerializer(serializers.ModelSerializer):
 		fields = ('owner', 'title', 'id', 'desc', 'threshold', 'actual_price', 'reward', 'timeStamp', 'claimed_by', "state")
         depth = 1
 
-class TaskListSerializer(serializers.ModelSerializer):
-	"""
-	Serializer for displaying all tasks
-	"""
-	owner = UserDetailSerializer(many=False)
-	class Meta:
-		model = Task
-		fields = ("owner", 'title', 'id', 'desc', 'reward', 'timeStamp', "threshold", "state")
-        read_only_fields = ("state",)
-        depth = 1
-
 class UserTaskSerializer(serializers.ModelSerializer):
 	"""
 	Serializer for displaying all of a user's tasks

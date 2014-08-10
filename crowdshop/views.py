@@ -5,7 +5,7 @@ from django.http import HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
 from crowdshop.models import Task, State, MyUser
-from crowdshop.serializers import UserDetailSerializer, UserDetailSerializer, TaskDetailSerializer, TaskListSerializer
+from crowdshop.serializers import UserDetailSerializer, UserDetailSerializer, TaskDetailSerializer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import renderers, generics
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -125,6 +125,7 @@ class UserDetail(generics.RetrieveAPIView):
 	queryset = MyUser.objects.all()
 	serializer_class = UserDetailSerializer
 
+"""
 class UserTasks(generics.ListAPIView):
 	paginate_by = 10
 	serializer_class = TaskListSerializer
@@ -133,12 +134,13 @@ class UserTasks(generics.ListAPIView):
 		username = self.kwargs['username']
 		owner = User.objects.get(username=username)
 		return Task.objects.filter(owner=owner)
+"""
 
-@authentication_classes((TokenAuthentication, ))
-@permission_classes((IsAuthenticated,))
+#@authentication_classes((TokenAuthentication, ))
+#@permission_classes((IsAuthenticated,))
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
-    serializer_class = TaskListSerializer
+    serializer_class = TaskDetailSerializer
 
     def create(self, request):
         form = TaskForm(request.DATA)
