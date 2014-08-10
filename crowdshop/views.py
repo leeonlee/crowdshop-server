@@ -12,7 +12,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from django.conf import settings
-from crowdshop.forms import TaskForm, PaymentForm, ClaimForm
+from crowdshop.forms import TaskForm, PayForm, ClaimForm
 import workflow
 import requests
 from rest_framework.permissions import IsAuthenticated
@@ -134,8 +134,8 @@ class UserTasks(generics.ListAPIView):
 		owner = User.objects.get(username=username)
 		return Task.objects.filter(owner=owner)
 
-#@authentication_classes((TokenAuthentication, ))
-#@permission_classes((IsAuthenticated,))
+@authentication_classes((TokenAuthentication, ))
+@permission_classes((IsAuthenticated,))
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskListSerializer
@@ -158,11 +158,23 @@ class TaskViewSet(viewsets.ModelViewSet):
         data = request.DATA.copy()
         data["token_venmo_id"] = token_id
         data["owner_venmo_id"] = task.owner.venmo_id
+        data["task"] = pk
 
         if task.state.name == "Open":
             form = ClaimForm(data)
             if form.is_valid():
                 task.claimed_by = user
+                task.state = task.state.next_state
+                task.save()
+                serializer = TaskDetailSerializer(task)
+                return Response(serializer.data)
+            else:
+                return Response(form.errors, status = status.HTTP_400_BAD_REQUEST)
+
+        elif task.state.name == "Claimed":
+            form = PayForm(data)
+            if form.is_valid():
+                task.actual_price = form.cleaned_data["amount"]
                 task.state = task.state.next_state
                 task.save()
                 serializer = TaskDetailSerializer(task)
@@ -217,84 +229,4 @@ class Tasks(generics.ListCreateAPIView):
         return queryset
 
     serializer_class = TaskListSerializer
-'''
-
-'''
-@csrf_exempt
-def createTask(request):
-	results = {'success':'invalid'}
-	if request.method == 'POST':
-			username = request.POST.get('username')
-			title = request.POST.get('title')
-			desc = request.POST.get('desc')
-			threshold = request.POST.get('threshold')
-			reward = request.POST.get('reward')
-			task = Task.objects.create(
-				owner = User.objects.get(username = username),
-				title = title,
-				desc = desc, 
-				threshold = threshold,
-				reward = reward,
-			)
-			results = {
-				'success':'success',
-				'owner': task.owner.username,
-				'id': task.id,
-				'title': task.title,
-				'desc': task.desc,
-				'threshold': task.threshold,
-				'reward': task.reward,
-				'complete': task.complete,
-				'timeStamp': task.timeStamp.isoformat(),
-			}
-	response = json.dumps(results)
-	return HttpResponse(response, content_type='application/json')
-
-@csrf_exempt
-def claimTask(request):
-	results = {'success':'invalid'}
-	if request.method == 'POST':
-			task_id = request.POST.get('task_id')
-			claimed_by = request.POST.get('username')
-			claimee = User.objects.get(username = claimed_by)
-			task = Task.objects.get(id = task_id)
-			task.claimed_by = claimee
-			task.save()
-			results = {
-				'success':'success',
-			}
-	response = json.dumps(results)
-	return HttpResponse(response, content_type='application/json')
-
-@csrf_exempt
-def confirmPurchase(request):
-	results = {'success':'invalid'}
-	if request.method == 'POST':
-			task_id = request.POST.get('task_id')
-			actual_price = request.POST.get('actual_price')
-			task = Task.objects.get(id = task_id)
-			if int(actual_price) > task.threshold:
-				pass
-			else:
-				task.actual_price = actual_price
-				task.save()
-				results = {
-					'success': 'success',
-				}
-	response = json.dumps(results)
-	return HttpResponse(response, content_type='application/json')
-
-@csrf_exempt
-def completeDeal(request):
-	results = {'success':'invalid'}
-	if request.method == 'POST':
-			task_id = request.POST.get('task_id')
-			task = Task.objects.get(id = task_id)
-			task.complete = True
-			task.save()
-			results = {
-				'success':'success',
-			}
-	response = json.dumps(results)
-	return HttpResponse(response, content_type='application/json')
 '''
