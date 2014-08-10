@@ -24,7 +24,7 @@ class Task(models.Model):
 	desc = models.CharField(max_length=255)
 	claimed_by = models.ForeignKey(MyUser, related_name="claimed_by", blank=True, null=True)
 	threshold = models.IntegerField(default = 0)
-	actual_price = models.IntegerField(blank = True, null=True)
+	paid = models.IntegerField(blank = True, null=True)
 	reward = models.IntegerField(default = 0)
 	timeStamp = models.DateTimeField(auto_now=True)
 	state = models.ForeignKey(State, related_name="tasks", null=True, blank=True)
