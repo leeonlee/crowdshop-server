@@ -5,7 +5,7 @@ from django.http import HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
 from crowdshop.models import Task, State, MyUser
-from crowdshop.serializers import UserDetailSerializer, UserDetailSerializer, TaskDetailSerializer
+from crowdshop.serializers import UserDetailSerializer, UserListSerializer, TaskDetailSerializer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import renderers, generics
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -59,33 +59,20 @@ def index(request):
 
 @api_view(('GET',))
 def api_root(request, format=None):
-        print request.user
-        print request.auth
-	return Response({
-		'users': reverse('userlist', request=request, format=format),
-		'tasks': reverse('tasks', request=request, format=format),
-	})
+    return Response({
+        'users': reverse('userlist', request=request, format=format),
+        'tasks': reverse('tasks', request=request, format=format),
+    })
 
-class UserList(generics.ListCreateAPIView):
-	queryset = MyUser.objects.all()
-	paginate_by = 10
-	serializer_class = UserDetailSerializer
-
-class UserDetail(generics.RetrieveAPIView):
-	paginate_by = 10
-	queryset = MyUser.objects.all()
-	serializer_class = UserDetailSerializer
-
-"""
-class UserTasks(generics.ListAPIView):
-	paginate_by = 10
-	serializer_class = TaskListSerializer
-
-	def get_queryset(self):
-		username = self.kwargs['username']
-		owner = User.objects.get(username=username)
-		return Task.objects.filter(owner=owner)
-"""
+class UserViewSet(viewsets.ModelViewSet):
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return UserDetailSerializer
+        else:
+            return UserListSerializer
+    queryset = MyUser.objects.all()
+    serializer_class = UserListSerializer
+    paginate_by = 10
 
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((IsAuthenticated,))

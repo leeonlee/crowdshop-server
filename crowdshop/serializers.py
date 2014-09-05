@@ -1,42 +1,38 @@
 from crowdshop.models import Task, MyUser
 from rest_framework import serializers
-
-class UserDetailSerializer(serializers.ModelSerializer):
+class UserListSerializer(serializers.HyperlinkedModelSerializer):
 	"""
-	Serializer for displaying all users
-	Also used to display brief information of a user
+	Serializer for displaying user's information
 	"""
 	class Meta:
 		model = MyUser
-		fields = ('venmo_id', 'username', 'first_name', 'last_name')
+		fields = ('url', 'id', 'username', 'first_name', 'last_name')
 
 class TaskDetailSerializer(serializers.ModelSerializer):
     """
     Serializer for displaying details of a task
     """
-    owner = UserDetailSerializer(many=False)
-    claimed_by = UserDetailSerializer(many=False)
+    owner = UserListSerializer(many=False)
+    claimed_by = UserListSerializer(many=False)
     state = serializers.SlugRelatedField(many=False, slug_field="name")
     class Meta:
         model = Task
         fields = ('owner', 'title', 'id', 'desc', 'threshold', 'paid', 'reward', 'timeStamp', 'claimed_by', "state")
         depth = 1
 
-class UserTaskSerializer(serializers.ModelSerializer):
-	"""
-	Serializer for displaying all of a user's tasks
-	Used to elminate redundancy in showing the owner's information
-	"""
-	claimed_by = UserDetailSerializer(many=False)
-	class Meta:
-		model = Task
-		fields = ('title', 'id', 'desc', 'reward', 'timeStamp', 'claimed_by')
+class UserTaskDetailSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    Displays all of a user's tasks
+    """
+    class Meta:
+        model = Task
+        fields = ('title', 'id', 'url')
 
 class UserDetailSerializer(serializers.ModelSerializer):
-	"""
-	Serializer for displaying user's information
-	"""
-	tasks = UserTaskSerializer(many=True)
-	class Meta:
-		model = MyUser
-		fields = ('id', 'username', 'first_name', 'last_name', 'tasks')
+    """
+    Display details of a user
+    """
+    tasks = UserTaskDetailSerializer(many=True)
+    class Meta:
+        model = MyUser
+        fields = ('id', 'username', 'first_name', 'last_name', 'tasks')
